@@ -1,0 +1,23 @@
+{
+  "kind": "collectionType",
+  "collectionName": "red_remover_levels",
+  "info": {
+    "singularName": "red-remover-level",
+    "pluralName": "red-remover-levels",
+    "displayName": "RedRemoverLevel"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "name": {
+      "type": "string"
+    },
+    "level_code": {
+      "type": "text"
+    },
+    "guid": {
+      "type": "string"
+    }
+  }
+}
