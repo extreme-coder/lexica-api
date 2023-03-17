@@ -1,0 +1,44 @@
+{
+  "kind": "collectionType",
+  "collectionName": "messages",
+  "info": {
+    "singularName": "message",
+    "pluralName": "messages",
+    "displayName": "message",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "from_player": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::player.player"
+    },
+    "to_player": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::player.player"
+    },
+    "gameroom": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::gameroom.gameroom"
+    },
+    "message": {
+      "type": "string"
+    },
+    "message_type": {
+      "type": "enumeration",
+      "enum": [
+        "CHAT",
+        "CHALLENGE"
+      ]
+    },
+    "is_read": {
+      "type": "boolean",
+      "default": false
+    }
+  }
+}

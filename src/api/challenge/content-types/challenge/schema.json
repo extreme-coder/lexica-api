@@ -1,0 +1,46 @@
+{
+  "kind": "collectionType",
+  "collectionName": "challenges",
+  "info": {
+    "singularName": "challenge",
+    "pluralName": "challenges",
+    "displayName": "challenge",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "from_player": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::player.player"
+    },
+    "to_player": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::player.player"
+    },
+    "game": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::game.game"
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": [
+        "NEW",
+        "ACCEPTED",
+        "REJECTED"
+      ]
+    },
+    "gameroom": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::gameroom.gameroom"
+    },
+    "code": {
+      "type": "string"
+    }
+  }
+}

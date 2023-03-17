@@ -1,0 +1,39 @@
+{
+  "kind": "collectionType",
+  "collectionName": "players",
+  "info": {
+    "singularName": "player",
+    "pluralName": "players",
+    "displayName": "player",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "gameroom": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::gameroom.gameroom"
+    },
+    "name": {
+      "type": "string"
+    },
+    "score": {
+      "type": "biginteger"
+    },
+    "game": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::game.game"
+    },
+    "user": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "email": {
+      "type": "email"
+    }
+  }
+}

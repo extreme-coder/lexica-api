@@ -1,0 +1,26 @@
+{
+  "kind": "collectionType",
+  "collectionName": "gamerooms",
+  "info": {
+    "singularName": "gameroom",
+    "pluralName": "gamerooms",
+    "displayName": "gameroom",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "join_code": {
+      "type": "string"
+    },
+    "user": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "admin::user"
+    },
+    "name": {
+      "type": "string"
+    }
+  }
+}

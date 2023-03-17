@@ -1,0 +1,17 @@
+professions:
+Mining
+Agriculture
+Service
+IT
+Management
+Finance
+Retail
+Heavy_Industry
+
+attribute types:
+-location
+-strata
+-profession
+-age
+-religiosity
+-ethnicity
