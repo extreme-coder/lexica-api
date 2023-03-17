@@ -10,7 +10,14 @@ module.exports = createCoreController('api::red-remover-level.red-remover-level'
   async create(ctx) {
  
     let code = '';
-    let entries = [];
+    
+    let entries = await strapi.entityService.findMany('api::red-remover-level.red-remover-level', {        
+      filters: { level_code: ctx.request.body.data.level_code },        
+    });
+    if(entries.length >0) {
+      return entries[0]
+    }  
+
     do {
       code = Math.random().toString(36).substring(2, 8).toUpperCase()
       entries = await strapi.entityService.findMany('api::red-remover-level.red-remover-level', {        
