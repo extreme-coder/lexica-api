@@ -1,0 +1,74 @@
+{
+  "kind": "collectionType",
+  "collectionName": "words",
+  "info": {
+    "singularName": "word",
+    "pluralName": "words",
+    "displayName": "word",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "word": {
+      "type": "string"
+    },
+    "clues": {
+      "type": "text"
+    },
+    "rhyme": {
+      "type": "text"
+    },
+    "syllables": {
+      "type": "string"
+    },
+    "usage": {
+      "type": "text"
+    },
+    "kind": {
+      "type": "string"
+    },
+    "grade": {
+      "type": "enumeration",
+      "enum": [
+        "GRADE-1-3",
+        "GRADE-4-6",
+        "GRADE-7-9",
+        "GRADE-10-12",
+        "GRADE-SAT"
+      ]
+    },
+    "guid": {
+      "type": "string"
+    },
+    "card_image": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "card_desc": {
+      "type": "string"
+    },
+    "STATUS": {
+      "type": "enumeration",
+      "enum": [
+        "NEW",
+        "READY"
+      ]
+    },
+    "is_premium": {
+      "type": "boolean",
+      "default": false
+    },
+    "meaning": {
+      "type": "text"
+    }
+  }
+}

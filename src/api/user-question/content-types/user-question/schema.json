@@ -1,0 +1,31 @@
+{
+  "kind": "collectionType",
+  "collectionName": "user_questions",
+  "info": {
+    "singularName": "user-question",
+    "pluralName": "user-questions",
+    "displayName": "UserQuestion",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "question": {
+      "type": "string"
+    },
+    "response": {
+      "type": "text"
+    },
+    "response_type": {
+      "type": "enumeration",
+      "enum": [
+        "AUTO",
+        "GPT"
+      ]
+    },
+    "password": {
+      "type": "string"
+    }
+  }
+}

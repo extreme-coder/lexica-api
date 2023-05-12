@@ -1,0 +1,28 @@
+{
+  "kind": "collectionType",
+  "collectionName": "worksheets",
+  "info": {
+    "singularName": "worksheet",
+    "pluralName": "worksheets",
+    "displayName": "worksheet",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "gpt_request": {
+      "type": "text"
+    },
+    "file": {
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ],
+      "type": "media",
+      "multiple": false
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "collectionName": "components_student_students",
+  "info": {
+    "displayName": "student",
+    "icon": "address-card"
+  },
+  "options": {},
+  "attributes": {
+    "name": {
+      "type": "string"
+    },
+    "join_code": {
+      "type": "string"
+    }
+  }
+}

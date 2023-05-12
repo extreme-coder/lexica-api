@@ -1,0 +1,62 @@
+{
+  "kind": "collectionType",
+  "collectionName": "word_game_sessions",
+  "info": {
+    "singularName": "word-game-session",
+    "pluralName": "word-game-sessions",
+    "displayName": "WordGameSession",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "guid": {
+      "type": "string"
+    },
+    "words_used": {
+      "type": "text"
+    },
+    "cards_collected": {
+      "type": "text"
+    },
+    "grade": {
+      "type": "enumeration",
+      "enum": [
+        "GRADE-1-3",
+        "GRADE-4-6",
+        "GRADE-7-9",
+        "GRADE-10-12",
+        "GRADE-SAT"
+      ]
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": [
+        "IN_PROGRESS",
+        "FINISHED"
+      ],
+      "default": "IN_PROGRESS"
+    },
+    "user": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "world": {
+      "type": "integer",
+      "default": 1
+    },
+    "level": {
+      "type": "integer",
+      "default": 1
+    },
+    "coins": {
+      "type": "integer",
+      "default": 0
+    },
+    "join_code": {
+      "type": "string"
+    }
+  }
+}

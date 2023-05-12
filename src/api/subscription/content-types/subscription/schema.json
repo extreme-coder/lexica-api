@@ -1,0 +1,46 @@
+{
+  "kind": "collectionType",
+  "collectionName": "subscriptions",
+  "info": {
+    "singularName": "subscription",
+    "pluralName": "subscriptions",
+    "displayName": "subscription",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "product": {
+      "type": "enumeration",
+      "enum": [
+        "WORD_HUNT",
+        "WORD_HUNT_TEACHER"
+      ]
+    },
+    "user": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "customer": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::customer.customer"
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": [
+        "ACTIVE",
+        "NOT_ACTIVE"
+      ],
+      "default": "ACTIVE"
+    },
+    "num_of_students": {
+      "type": "integer"
+    },
+    "stripe_plan_id": {
+      "type": "string"
+    }
+  }
+}
