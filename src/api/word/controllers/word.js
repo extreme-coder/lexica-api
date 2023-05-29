@@ -62,7 +62,7 @@ module.exports = createCoreController('api::word.word', ({ strapi }) =>  ({
       // check if the student has a subscription
       if(students.length > 0) {
         const subscriptions = await strapi.entityService.findMany('api::subscription.subscription', {
-          filters: { user: students[0].user.id, product: 'WORD_HUNT_TEACHER', status: 'ACTIVE' },
+          filters: { user: students[0].user.id, product: ['WORD_HUNT_30', 'WORD_HUNT_100'], status: 'ACTIVE' },
         });
         
         if(subscriptions.length > 0) {

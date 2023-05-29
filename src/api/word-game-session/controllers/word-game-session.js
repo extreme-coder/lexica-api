@@ -72,7 +72,7 @@ module.exports = createCoreController('api::word-game-session.word-game-session'
     }
     //check if student has a valid subscription
     const subscriptions = await strapi.entityService.findMany('api::subscription.subscription', {
-      filters: { user: entries[0].user.id, product: 'WORD_HUNT_TEACHER', status: 'ACTIVE' },
+      filters: { user: entries[0].user.id, product: ['WORD_HUNT_30', 'WORD_HUNT_100'], status: 'ACTIVE' },
     });
     //if subscription is active return true
     if(subscriptions.length > 0) {
