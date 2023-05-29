@@ -17,7 +17,7 @@ module.exports = {
     },
     { // Path defined with a regular expression
       method: 'GET',
-      path: '/word-game-session/student/is_valid_code/:join_code',
+      path: '/word-game-sessions/student/is_valid_code/:join_code',
       handler: 'word-game-session.isValidStudentCode',
     }
     
