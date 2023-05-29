@@ -54,11 +54,15 @@ module.exports = createCoreController('api::message.message', ({ strapi }) =>  (
         filters: { guid: sessionId },
       })
       wordGameSession = wordGameSession[0]
-      if(!wordGameSession.cards_collected) {
-        wordGameSession.cards_collected = ''
+     
+      let cardsCollected = []
+      if(wordGameSession.cards_collected) {
+        cardsCollected = wordGameSession.cards_collected.trim().split(',')
       }
-      let cardsCollected = wordGameSession.cards_collected.split(',')
-      cardsCollected.push(word.word)
+      if(!cardsCollected.includes(word.word)) {
+        cardsCollected.push(word.word)
+      }
+      
       await strapi.entityService.update('api::word-game-session.word-game-session', wordGameSession.id, {
         data: {
           cards_collected: cardsCollected.join(',')

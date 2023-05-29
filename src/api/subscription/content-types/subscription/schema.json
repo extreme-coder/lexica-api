@@ -15,7 +15,8 @@
       "type": "enumeration",
       "enum": [
         "WORD_HUNT",
-        "WORD_HUNT_TEACHER"
+        "WORD_HUNT_30",
+        "WORD_HUNT_100"
       ]
     },
     "user": {

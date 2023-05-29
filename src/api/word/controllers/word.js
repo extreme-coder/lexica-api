@@ -114,11 +114,13 @@ module.exports = createCoreController('api::word.word', ({ strapi }) =>  ({
     }
 
     //update the word in wordGameSession
-    await strapi.entityService.update('api::word-game-session.word-game-session', wordGameSession.id, {
-      data: {
-        words_used: [...usedWords, word.word].join(',')
-      }
-    });
+    if(!usedWords.includes(word.word)) {
+      await strapi.entityService.update('api::word-game-session.word-game-session', wordGameSession.id, {
+        data: {
+          words_used: [...usedWords, word.word].join(',')
+        }
+      });
+    }
 
     //return the word
     return {guid: word.guid, length:word.word.length, card_image: word.card_image};

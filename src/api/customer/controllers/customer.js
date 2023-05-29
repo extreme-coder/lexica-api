@@ -8,8 +8,15 @@ const { createCoreController } = require('@strapi/strapi').factories;
 
 
 const pricePlans = {
-  'WORD_HUNT': 'price_1N2IAXCtAcylbX0GTAM0MpKY',
-  'WORD_HUNT_TEACHER': 'price_1N4RtxCtAcylbX0GxZWmy0pj'
+  'WORD_HUNT': 'price_1NDAJLCtAcylbX0GGp8t8U2n',
+  'WORD_HUNT_30': 'price_1NDAL4CtAcylbX0G2rwJ1bUz',
+  'WORD_HUNT_100': 'price_1N4RtxCtAcylbX0GxZWmy0pj'
+};
+
+const yerlyPricePlans = {
+  'WORD_HUNT': 'price_1NDAJLCtAcylbX0G18faBDbU',
+  'WORD_HUNT_30': 'price_1NDAL4CtAcylbX0GTh8WJfyE',
+  'WORD_HUNT_100': 'price_1N4RtxCtAcylbX0GxZWmy0pj'
 };
 
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
@@ -37,8 +44,12 @@ module.exports = createCoreController('api::customer.customer', ({ strapi }) => 
     const planId = Object.keys(pricePlans).find(key => pricePlans[key] === stripePlanId);
 
     let numberOfStudents = 1;
-    if(planId === 'WORD_HUNT_TEACHER') {
+    if(planId === 'WORD_HUNT_30') {
       numberOfStudents = 30;
+    }
+
+    if(planId === 'WORD_HUNT_100') {
+      numberOfStudents = 100;
     }
 
 
@@ -90,8 +101,12 @@ module.exports = createCoreController('api::customer.customer', ({ strapi }) => 
 
   async createSession(ctx) {
     const domainURL = process.env.DOMAIN;
-    const {planId } = ctx.request.body.data;
-    const srtipePlanId = pricePlans[planId];
+    const {planId, isYearly } = ctx.request.body.data;
+    let srtipePlanId = pricePlans[planId];
+    if(isYearly) {
+      srtipePlanId = yerlyPricePlans[planId];
+    }
+    
     let urlpath = '/payment-success';
   
     // Create new Checkout Session for the order
