@@ -40,7 +40,7 @@ module.exports = createCoreController('api::word.word', ({ strapi }) =>  ({
     });
     
     wordGameSession = wordGameSession[0];
-    let filter = { grade: 'GRADE-4-6', status:'READY', is_premium: false }
+    let filter = { grade: wordGameSession.grade, status:'READY', is_premium: false }
     //check if user has subscription
     if(ctx.state.user) {
       const subscriptions = await strapi.entityService.findMany('api::subscription.subscription', {

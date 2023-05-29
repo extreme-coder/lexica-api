@@ -78,7 +78,7 @@ module.exports = createCoreController('api::word-game-session.word-game-session'
     if(subscriptions.length > 0) {
       //find the game session for the student join code
       const sessions = await strapi.entityService.findMany('api::word-game-session.word-game-session', {
-        filters: { join_code: join_code },
+        filters: { join_code: join_code, status: 'IN_PROGRESS' },
       });
       if(sessions.length >= 1) {
         return {valid: true, sessionId: sessions[0].guid}
