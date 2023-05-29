@@ -37,7 +37,7 @@ module.exports = createCoreController('api::word-game-session.word-game-session'
     //load subscriptioon for the user with product = WORD_HUNT
     const { user } = ctx.state
     const subscriptions = await strapi.entityService.findMany('api::subscription.subscription', {
-      filters: { user: user.id, product: 'WORD_HUNT', status: 'ACTIVE' },
+      filters: { user: user.id, product: ['WORD_HUNT', 'WORD_HUNT_30', 'WORD_HUNT_100'], status: 'ACTIVE' },
     });
     
     //if subscription is active return true
