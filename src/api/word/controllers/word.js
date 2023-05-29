@@ -160,7 +160,7 @@ module.exports = createCoreController('api::word.word', ({ strapi }) =>  ({
 
     //get all the words for the cards_collected
     const words = await strapi.entityService.findMany('api::word.word', {
-      filters: { word: randomCards },
+      filters: { word: randomCards, grade: wordGameSession.grade },
       populate: ['card_image', 'card_desc', 'meaning']
     });
     //return word, card_image and card_desc for each word
