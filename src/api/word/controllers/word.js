@@ -79,22 +79,28 @@ module.exports = createCoreController('api::word.word', ({ strapi }) =>  ({
       filters: filter,
       populate: ['card_image', 'card_desc']
     });
-    //get a random word which until its not in wordGameSession.words
-    let word = words[Math.floor(Math.random() * words.length)];
-    
-    //dont try more than 10 iterations
     let usedWords = []
     if(wordGameSession.words_used) {
       usedWords = wordGameSession.words_used.trim().split(',');
-    } 
-    let i = 0;
-    while(usedWords.includes(word.word)) {
-      if(i > 10) {
-        break;
-      }
-      i++;
-      word = words[Math.floor(Math.random() * words.length)];
     }
+    let word 
+    //if word used is same as all words just pick a random word 
+    if(usedWords.length >= words.length) {
+      //get a random word
+      word = words[Math.floor(Math.random() * words.length)];
+    } else {
+      //remove the used words from words
+      words.forEach((w) => {
+        if(usedWords.includes(w.word)) {
+          words.splice(words.indexOf(w), 1);
+        }
+      });
+    } 
+
+    //get a random word 
+    word = words[Math.floor(Math.random() * words.length)];
+    
+
     //if word doesn't have a guid generate one 
     if(!word.guid) {      
       //check if guid is unique
