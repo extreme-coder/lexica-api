@@ -39,10 +39,7 @@ module.exports = createCoreController('api::message.message', ({ strapi }) =>  (
       //only one word, check if its the password 
       if(words[0].toLowerCase() === word.word) {
         foundAnswer = true        
-      } else {
-        trollResponse = words[0] + '!, that is not the password. But I can give you a clue. ' + clue        
-        return {content: trollResponse, answer: false}
-      }
+      } 
     }
 
     if (words.includes(word.word)) {
@@ -77,13 +74,13 @@ module.exports = createCoreController('api::message.message', ({ strapi }) =>  (
       trollResponse = 'Are you trying to trick me? I am not going to reveal that. But I can give you a clue.' + clue
     }
 
-    let rhymeWords = ['rhyme', 'rime', 'rhymer', 'rimer', 'rimes', 'rhymes']
+    let rhymeWords = ['rhyme', 'rime', 'rhymer', 'rimer', 'rimes', 'rhymes', 'rhyming']
     if (rhymeWords.some(word => words.includes(word))) {
       let rhymes = word.rhyme.split('\n')
       trollResponse = 'Thats a good strategy. The word rhymes with ' + rhymes[Math.floor(Math.random() * rhymes.length)] + '.'
     }
 
-    let clueWords = ['clue', 'hint', 'cue', 'tip', 'clues', 'hints', 'cues', 'tips']
+    let clueWords = ['clue', 'hint', 'cue', 'tip', 'clues', 'hints', 'cues', 'tips', 'help']
     //check if any clue words are in the message
     if (clueWords.some(word => words.includes(word))) {      
       trollResponse = 'Ok, here is a clue. ' + clue
@@ -107,6 +104,13 @@ module.exports = createCoreController('api::message.message', ({ strapi }) =>  (
       trollResponse = 'Very Clever. Me thinks its an ' + word.kind 
       } else {
         trollResponse = 'Very Clever. Me thinks its a ' + word.kind
+      }
+    }
+
+    if (words.length == 1) {
+      //only one word, check if its the password 
+      if(words[0].toLowerCase() !== word.word) {        
+        trollResponse = words[0] + '!, that is not the password. But I can give you a clue. ' + clue        
       }
     }
 
