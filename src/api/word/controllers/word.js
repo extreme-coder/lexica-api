@@ -80,8 +80,8 @@ module.exports = createCoreController('api::word.word', ({ strapi }) =>  ({
       populate: ['card_image', 'card_desc']
     });
     let usedWords = []
-    if(wordGameSession.words_used) {
-      usedWords = wordGameSession.words_used.trim().split(',');
+    if(wordGameSession.cards_collected) {
+      usedWords = wordGameSession.cards_collected.trim().split(',');
     }
     let word 
     //if word used is same as all words just pick a random word 
