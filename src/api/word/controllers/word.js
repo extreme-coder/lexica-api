@@ -148,7 +148,7 @@ module.exports = createCoreController('api::word.word', ({ strapi }) =>  ({
       let i = 0;            
       while(i < ctx.query.number && i < cards.length) {
         const card = cards[Math.floor(Math.random() * cards.length)];
-        if(!randomCards.includes(card) && cards.length <= ctx.query.letters) {
+        if(!randomCards.includes(card) && card.length <= ctx.query.letters) {
           randomCards.push(card);
           i++;
         }
