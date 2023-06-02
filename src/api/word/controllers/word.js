@@ -75,7 +75,7 @@ module.exports = createCoreController('api::word.word', ({ strapi }) =>  ({
 
     console.log(filter)
     //get all the words 
-    const words = await strapi.entityService.findMany('api::word.word', {
+    let words = await strapi.entityService.findMany('api::word.word', {
       filters: filter,
       populate: ['card_image', 'card_desc']
     });
@@ -84,17 +84,17 @@ module.exports = createCoreController('api::word.word', ({ strapi }) =>  ({
       usedWords = wordGameSession.cards_collected.trim().split(',');
     }
     let word 
+    
+    console.log(usedWords)
+
     //if word used is same as all words just pick a random word 
     if(usedWords.length >= words.length) {
-      //get a random word
+      //get a random word      
       word = words[Math.floor(Math.random() * words.length)];
-    } else {
+    } else {      
       //remove the used words from words
-      words.forEach((w) => {
-        if(usedWords.includes(w.word)) {
-          words.splice(words.indexOf(w), 1);
-        }
-      });
+      let usedWordsSet = new Set(usedWords);
+      words = words.filter(w => !usedWordsSet.has(w.word));      
     } 
 
     //get a random word 
