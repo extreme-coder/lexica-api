@@ -145,13 +145,14 @@ module.exports = createCoreController('api::word.word', ({ strapi }) =>  ({
     if(ctx.query.number) {
       //get random cards from the word-game-session.cards_collected
       const cards = wordGameSession.cards_collected.split(',');
-      let i = 0;            
-      while(i < ctx.query.number && i < cards.length) {
+      let i = 0;  j = 0;          
+      while(i < ctx.query.number && i < cards.length && j < 25) {
         const card = cards[Math.floor(Math.random() * cards.length)];
         if(!randomCards.includes(card) && card.length <= ctx.query.letters) {
           randomCards.push(card);
           i++;
         }
+        j++
       }
     } else {
       //get all the cards from the word-game-session.cards_collected
