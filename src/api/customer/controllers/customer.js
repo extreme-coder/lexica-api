@@ -7,16 +7,28 @@
 const { createCoreController } = require('@strapi/strapi').factories;
 
 
-const pricePlans = {
+const pricePlans_dev = {
   'WORD_HUNT': 'price_1NDAJLCtAcylbX0GGp8t8U2n',
   'WORD_HUNT_30': 'price_1NDAL4CtAcylbX0G2rwJ1bUz',
   'WORD_HUNT_100': 'price_1N4RtxCtAcylbX0GxZWmy0pj'
 };
 
-const yerlyPricePlans = {
+const yerlyPricePlans_dev = {
   'WORD_HUNT': 'price_1NDAJLCtAcylbX0G18faBDbU',
   'WORD_HUNT_30': 'price_1NDAL4CtAcylbX0GTh8WJfyE',
   'WORD_HUNT_100': 'price_1N4RtxCtAcylbX0GxZWmy0pj'
+};
+
+const pricePlans = {
+  'WORD_HUNT': 'price_1NDAM8CtAcylbX0GesCXximH',
+  'WORD_HUNT_30': 'price_1NDANNCtAcylbX0G614hrAGX',
+  'WORD_HUNT_100': 'price_1NDANSCtAcylbX0GkY6aB01P'
+};
+
+const yerlyPricePlans = {
+  'WORD_HUNT': 'price_1NDAM8CtAcylbX0GLYdBGlI7',
+  'WORD_HUNT_30': 'price_1NDANNCtAcylbX0G5fnfIOPz',
+  'WORD_HUNT_100': 'price_1NDANSCtAcylbX0GNcWeWMqz'
 };
 
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
