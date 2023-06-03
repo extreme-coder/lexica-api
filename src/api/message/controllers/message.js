@@ -110,7 +110,9 @@ module.exports = createCoreController('api::message.message', ({ strapi }) =>  (
     if (trollResponse === '' && words.length == 1) {
       //only one word, check if its the password 
       if(words[0].toLowerCase() !== word.word) {        
-        trollResponse = words[0] + '!, that is not the password. But I can give you a clue. ' + clue        
+        //capitlize the word 
+        let spWord = words[0].charAt(0).toUpperCase() + words[0].slice(1)
+        trollResponse = spWord + '!, that is not the password. But I can give you a clue. ' + clue        
       }
     }
 
