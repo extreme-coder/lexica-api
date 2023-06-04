@@ -14,19 +14,22 @@ module.exports = createCoreController('api::word.word', ({ strapi }) =>  ({
       filters: { guid: word_guid },
     });
     //if all letters are already revealed return false
-    if(revealedLetters.length >=3) {
+    if((word[0].word.length - revealedLetters.length) <= 3) {
       return false;
     }
 
-    //get the letters from the word until its not in revealedLetters
-    let loc = Math.floor(Math.random() * word[0].word.length)
-    let letter = word[0].word[loc];
-    let i = 0;
-    while(revealedLetters.includes(letter)) {      
-      i++;
-      loc = Math.floor(Math.random() * word[0].word.length)
-      letter = word[0].word[loc];
+    let wordLetters = word[0].word.split('');
+    let unrevealedLetterIndices = wordLetters.map((letter, index) => !revealedLetters.includes(letter) ? index : -1).filter(index => index !== -1);
+    let loc, letter;
+    if (unrevealedLetterIndices.length > 0) {
+        let randomIndex = Math.floor(Math.random() * unrevealedLetterIndices.length);
+        loc = unrevealedLetterIndices[randomIndex];
+        letter = word[0].word[loc];
+    } else {
+        // All letters have been revealed
+        return false;
     }
+
     //return the letter
     return {letter: letter, location:loc};
   },

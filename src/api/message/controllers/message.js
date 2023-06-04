@@ -17,7 +17,9 @@ module.exports = createCoreController('api::message.message', ({ strapi }) =>  (
   },
   
   async chatCompletion(ctx) {
-    const { message, word_guid, sessionId } = ctx.request.body.data
+    const { message, word_guid, sessionId, revealedLetters } = ctx.request.body.data
+    let cluesCount = ctx.request.body.data.cluesCount || 0
+    let revealLetters = 0
     const { Configuration, OpenAIApi } = require("openai");
     let responseType = 'AUTO'
     let dbwords = await strapi.entityService.findMany('api::word.word', 
@@ -84,6 +86,7 @@ module.exports = createCoreController('api::message.message', ({ strapi }) =>  (
     //check if any clue words are in the message
     if (clueWords.some(word => words.includes(word))) {      
       trollResponse = 'Ok, here is a clue. ' + clue
+      cluesCount ++
     }
 
     let useWords = ['use', 'usage']
@@ -112,7 +115,14 @@ module.exports = createCoreController('api::message.message', ({ strapi }) =>  (
       if(words[0].toLowerCase() !== word.word) {        
         //capitlize the word 
         let spWord = words[0].charAt(0).toUpperCase() + words[0].slice(1)
-        trollResponse = spWord + '!, that is not the password. But I can give you a clue. ' + clue        
+        if(cluesCount >= 3 && (word.word.length - revealedLetters.length) >= 5) {
+          trollResponse = 'I see you are struggling human. You know you can buy letters for 200 coins each. To help you let me give you two free letters.'
+          cluesCount = 0
+          revealLetters = 2
+        } else {
+          trollResponse = spWord + '!, that is not the password. But I can give you a clue. ' + clue      
+          cluesCount ++  
+        }
       }
     }
 
@@ -163,7 +173,7 @@ module.exports = createCoreController('api::message.message', ({ strapi }) =>  (
       }
     })
 
-    return {content: trollResponse, answer: false}
+    return {content: trollResponse, answer: false, cluesCount: cluesCount, revealLetters: revealLetters}
    
   },
 
