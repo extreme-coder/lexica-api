@@ -14,7 +14,7 @@ module.exports = createCoreController('api::word.word', ({ strapi }) =>  ({
       filters: { guid: word_guid },
     });
     //if all letters are already revealed return false
-    if((word[0].word.length - revealedLetters.length) <= 3) {
+    if((word[0].word.length - revealedLetters.length) <= 2) {
       return false;
     }
 

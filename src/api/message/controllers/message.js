@@ -115,7 +115,7 @@ module.exports = createCoreController('api::message.message', ({ strapi }) =>  (
       if(words[0].toLowerCase() !== word.word) {        
         //capitlize the word 
         let spWord = words[0].charAt(0).toUpperCase() + words[0].slice(1)
-        if(cluesCount >= 3 && (word.word.length - revealedLetters.length) >= 5) {
+        if(cluesCount >= 3 && (word.word.length - revealedLetters.length) >= 4) {
           trollResponse = 'I see you are struggling human. You know you can buy letters for 200 coins each. To help you let me give you two free letters.'
           cluesCount = 0
           revealLetters = 2
