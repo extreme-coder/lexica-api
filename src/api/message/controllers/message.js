@@ -130,7 +130,7 @@ module.exports = createCoreController('api::message.message', ({ strapi }) =>  (
             if(misspelled.suggestions.includes(word.word)) {
               trollResponse = await strapi.service('api::message.message').getTemplateMessage('WRONG_SPELLING')  
             } else {
-              if (words[0].length < word.word.length) {                
+              if (words[0].length < word.word.length-2) {                
                 trollResponse = await strapi.service('api::message.message').getTemplateMessage('SHORT')  
               } else {
                 wrongAnswer = true                  
@@ -138,7 +138,11 @@ module.exports = createCoreController('api::message.message', ({ strapi }) =>  (
             } 
           } 
         } else {
-          wrongAnswer = true            
+          if (words[0].length < word.word.length-2) {                
+            trollResponse = await strapi.service('api::message.message').getTemplateMessage('SHORT')  
+          } else {
+            wrongAnswer = true                  
+          }          
         }        
       }
     }
