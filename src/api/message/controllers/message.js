@@ -110,19 +110,47 @@ module.exports = createCoreController('api::message.message', ({ strapi }) =>  (
       }
     }
 
-    if (trollResponse === '' && words.length == 1) {
+
+    //capitlize the word 
+    let spWord = words[0].charAt(0).toUpperCase() + words[0].slice(1)
+    let wrongAnswer = false
+    if (trollResponse === '' && words.length == 1) {      
       //only one word, check if its the password 
-      if(words[0].toLowerCase() !== word.word) {        
-        //capitlize the word 
-        let spWord = words[0].charAt(0).toUpperCase() + words[0].slice(1)
-        if(cluesCount >= 3 && (word.word.length - revealedLetters.length) >= 4) {
-          trollResponse = 'I see you are struggling human. You know you can buy letters for 200 coins each. To help you let me give you two free letters.'
-          cluesCount = 0
-          revealLetters = 2
+      if(words[0].toLowerCase() !== word.word) {                
+        //check if word is gibberish
+        var SpellChecker = require('simple-spellchecker');
+        var dictionary = SpellChecker.getDictionarySync("en-US");
+        var misspelled = dictionary.checkAndSuggest(spWord.toLowerCase()); 
+        if(misspelled.misspelled) {
+          if(misspelled.suggestions.length == 0) {
+            //not a real word            
+            trollResponse = await strapi.service('api::message.message').getTemplateMessage('GIBBERISH')  
+          } else {
+            //if the word is close
+            if(misspelled.suggestions.includes(word.word)) {
+              trollResponse = await strapi.service('api::message.message').getTemplateMessage('WRONG_SPELLING')  
+            } else {
+              if (words[0].length < word.word.length) {                
+                trollResponse = await strapi.service('api::message.message').getTemplateMessage('SHORT')  
+              } else {
+                wrongAnswer = true                  
+              }
+            } 
+          } 
         } else {
-          trollResponse = spWord + '!, that is not the password. But I can give you a clue. ' + clue      
-          cluesCount ++  
-        }
+          wrongAnswer = true            
+        }        
+      }
+    }
+
+    if(wrongAnswer) {
+      if(cluesCount >= 3 && (word.word.length - revealedLetters.length) >= 4) {
+        trollResponse = 'I see you are struggling human. You know you can buy letters for 200 coins each. To help you let me give you two free letters.'
+        cluesCount = 0
+        revealLetters = 2
+      } else {
+        trollResponse = spWord + '!, that is not the password. But I can give you a clue. ' + clue      
+        cluesCount ++  
       }
     }
 

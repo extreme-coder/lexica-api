@@ -1,0 +1,26 @@
+{
+  "kind": "collectionType",
+  "collectionName": "chat_templates",
+  "info": {
+    "singularName": "chat-template",
+    "pluralName": "chat-templates",
+    "displayName": "ChatTemplate",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "messages": {
+      "type": "text"
+    },
+    "type": {
+      "type": "enumeration",
+      "enum": [
+        "SHORT",
+        "GIBBERISH",
+        "WRONG_SPELLING"
+      ]
+    }
+  }
+}
