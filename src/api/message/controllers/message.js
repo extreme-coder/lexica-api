@@ -110,6 +110,13 @@ module.exports = createCoreController('api::message.message', ({ strapi }) =>  (
       }
     }
 
+    let giveUpWords = ['give up']
+    let givenUp = false
+    if (giveUpWords.some(word => message.trim().toLowerCase().includes(word))) {
+      console.log('code went here')
+      trollResponse = `Well, well, look who's given up! Time for me to reveal the word you've been searching for. Prepare yourself, human, for the mighty word is... ${word.word}. Remember it well, for next time, the challenges will be even tougher!`
+      givenUp = true
+    }
 
     //capitlize the word 
     let spWord = words[0].charAt(0).toUpperCase() + words[0].slice(1)
@@ -205,7 +212,7 @@ module.exports = createCoreController('api::message.message', ({ strapi }) =>  (
       }
     })
 
-    return {content: trollResponse, answer: false, cluesCount: cluesCount, revealLetters: revealLetters}
+    return {content: trollResponse, answer: false, cluesCount: cluesCount, revealLetters: revealLetters, givenUp: givenUp, word: (givenUp ? word.word : '')}
    
   },
 
