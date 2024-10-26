@@ -1,0 +1,13 @@
+{
+  "collectionName": "components_video_image_urls",
+  "info": {
+    "displayName": "Image URL",
+    "icon": "ambulance"
+  },
+  "options": {},
+  "attributes": {
+    "url": {
+      "type": "string"
+    }
+  }
+}
