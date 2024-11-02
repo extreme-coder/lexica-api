@@ -25,7 +25,7 @@ module.exports = createCoreController('api::lesson.lesson', ({ strapi }) => ({
           role: "system",
           content: `You are a helpful assistant that divides lesson content into logical 
           small bytes which can be easily consumed by a student to learn the concept. Give a small name to the lesson as well.           
-          The response should be a JSON. example format: 
+          The response should be a JSON. Don't use markdown. example format: 
           {name: 'lesson name', sections: [{section_text: 'section 1'}, {section_text: 'section 2'}]}`
         },
         {
