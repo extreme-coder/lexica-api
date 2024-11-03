@@ -7,6 +7,50 @@
 const { createCoreController } = require('@strapi/strapi').factories;
 const { OpenAIApi, Configuration } = require('openai');
 const axios = require('axios');
+const sharp = require('sharp');
+const AWS = require('aws-sdk');
+
+// Configure AWS
+const s3 = new AWS.S3({
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_ACCESS_SECRET,
+  region: process.env.AWS_REGION
+});
+
+// Helper function to download, process and upload image
+async function processAndUploadImage(imageUrl) {
+  try {
+    // Download image
+    const response = await axios.get(imageUrl, { responseType: 'arraybuffer' });
+    const buffer = Buffer.from(response.data);
+
+    // Process image with sharp
+    const processedImage = await sharp(buffer)
+      .resize(800, 600, { // Adjust dimensions as needed
+        fit: 'inside',
+        withoutEnlargement: true
+      })
+      .jpeg({ quality: 80 })
+      .toBuffer();
+
+    // Generate unique filename
+    const filename = `lessons/${Date.now()}-${Math.random().toString(36).substring(7)}.jpg`;
+
+    // Upload to S3
+    const uploadResult = await s3.upload({
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: filename,
+      Body: processedImage,
+      ContentType: 'image/jpeg',
+      ACL: 'public-read'
+    }).promise();
+
+    return uploadResult.Location; // Return the S3 URL
+  } catch (error) {
+    console.error('Error processing image:', error);
+    throw error;
+  }
+}
 
 module.exports = createCoreController('api::lesson.lesson', ({ strapi }) => ({
   async create(ctx) {
@@ -50,16 +94,17 @@ module.exports = createCoreController('api::lesson.lesson', ({ strapi }) => ({
         params: {
           query: section.section_text,
           size: 'small',
-          per_page: 10 // Get 10 images to randomly select from
+          per_page: 10
         }
       });
 
-      // Randomly select 3 images from the response
+      // Randomly select 3 images and process them
       const photos = response.data.photos;
       const selectedImages = [];
       for(let i = 0; i < 3 && photos.length > 0; i++) {
         const randomIndex = Math.floor(Math.random() * photos.length);
-        selectedImages.push({url: photos[randomIndex].src.original});
+        const s3Url = await processAndUploadImage(photos[randomIndex].src.original);
+        selectedImages.push({ url: s3Url });
         photos.splice(randomIndex, 1);
       }
 

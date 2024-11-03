@@ -1,4 +1,4 @@
-FROM node:16
+FROM node:18
 
 # Update aptitude with new repo
 RUN apt-get update
