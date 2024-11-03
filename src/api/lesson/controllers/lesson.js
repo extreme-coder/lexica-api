@@ -68,9 +68,10 @@ module.exports = createCoreController('api::lesson.lesson', ({ strapi }) => ({
         {
           role: "system",
           content: `You are a helpful assistant that divides lesson content into logical 
-          small bytes which can be easily consumed by a student to learn the concept. Give a small name to the lesson as well.           
+          small bytes which can be easily consumed by a student to learn the concept. Give a small name to the lesson as well.  
+          Also for each section, we will search for images, so we need 2 words that describe the section to use for image search.         
           The response should be a JSON. Don't use markdown. example format: 
-          {name: 'lesson name', sections: [{section_text: 'section 1'}, {section_text: 'section 2'}]}`
+          {name: 'lesson name', sections: [{section_text: 'section 1', section_keywords: 'keyword1 keyword2']}, {section_text: 'section 2', section_keywords: 'keyword3 keyword4'}]}`
         },
         {
           role: "user", 
@@ -92,7 +93,7 @@ module.exports = createCoreController('api::lesson.lesson', ({ strapi }) => ({
           'Authorization': 'gkMjrxkUs79lfW7bwto3erMyL9LUH73wcCKzl28pVJL5D0z9ytUQlLKB'
         },
         params: {
-          query: section.section_text,
+          query: section.section_keywords,
           size: 'small',
           per_page: 10
         }
