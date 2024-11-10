@@ -1,0 +1,15 @@
+{
+  "collectionName": "components_flash_card_flash_cards",
+  "info": {
+    "displayName": "FlashCard"
+  },
+  "options": {},
+  "attributes": {
+    "front": {
+      "type": "text"
+    },
+    "back": {
+      "type": "text"
+    }
+  }
+}

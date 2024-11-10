@@ -4,11 +4,22 @@ FROM node:18
 RUN apt-get update
 
 # Install software
-RUN apt-get install -y git libvips-dev
+RUN apt-get install -y git libvips-dev python3 build-essential
+
+RUN ln -s /usr/bin/python3 /usr/bin/python && \
+    rm -rf /var/lib/apt/lists/*
 
 # Make ssh dir
 RUN mkdir /root/.ssh/
 
+# Set the PYTHON environment variable for node-gyp
+ENV PYTHON=/usr/bin/python3
+ENV SHARP_IGNORE_GLOBAL_LIBVIPS=1
+
+
+# Upgrade npm and install node-gyp globally
+RUN npm install -g npm@latest && \
+    npm install -g node-gyp@latest
 
 
 # Create known_hosts
