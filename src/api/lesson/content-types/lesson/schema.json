@@ -32,6 +32,11 @@
         "subway",
         "minecraft"
       ]
+    },
+    "flashcards": {
+      "type": "component",
+      "repeatable": true,
+      "component": "flashcard.flashcard"
     }
   }
 }

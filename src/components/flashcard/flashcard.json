@@ -1,0 +1,18 @@
+{
+  "collectionName": "components_flashcard_flashcards",
+  "info": {
+    "displayName": "Flashcard",
+    "description": "Practice questions and answers for lessons"
+  },
+  "options": {},
+  "attributes": {
+    "front": {
+      "type": "text",
+      "required": true
+    },
+    "back": {
+      "type": "text",
+      "required": true
+    }
+  }
+} 

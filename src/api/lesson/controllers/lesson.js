@@ -54,23 +54,48 @@ async function processAndUploadImage(imageUrl) {
 
 module.exports = createCoreController('api::lesson.lesson', ({ strapi }) => ({
   async create(ctx) {
-    const { lessonText } = ctx.request.body.data;
+    const { lessonText, videoType, includePractice } = ctx.request.body.data;
 
     const configuration = new Configuration({
       apiKey: process.env.OPENAI_API_KEY
     });
     const openai = new OpenAIApi(configuration);
 
-    // Ask ChatGPT to divide the lesson into sections
+    // Updated system prompt to include practice questions when requested
+    const systemPrompt = includePractice 
+      ? `You are a helpful assistant that divides lesson content into logical 
+         small bytes which can be easily consumed by a student to learn the concept. 
+         Give a small name to the lesson and create practice questions.
+         The response should be valid JSON. Don't use markdown. example format: 
+         {
+           "name": "lesson name",
+           "sections": [
+             { "section_text": "section 1" },
+             { "section_text": "section 2" }
+           ],
+           "practice": [
+             { "front": "Question 1?", "back": "Answer 1" },
+             { "front": "Question 2?", "back": "Answer 2" }
+           ]
+         }`
+      : `You are a helpful assistant that divides lesson content into logical 
+         small bytes which can be easily consumed by a student to learn the concept.
+         Give a small name to the lesson as well. The response should be valid JSON.
+         Don't use markdown. example format: 
+         {
+           "name": "lesson name",
+           "sections": [
+             { "section_text": "section 1" },
+             { "section_text": "section 2" }
+           ]
+         }`;
+
     const completion = await openai.createChatCompletion({
       model: "gpt-4o-mini",
       messages: [
         {
           role: "system",
-          content: `You are a helpful assistant that divides lesson content into logical 
-          small bytes which can be easily consumed by a student to learn the concept. Give a small name to the lesson as well.           
-          The response should be a JSON. Don't use markdown. example format: 
-          {name: 'lesson name', sections: [{section_text: 'section 1'}, {section_text: 'section 2'}]}`
+          content: systemPrompt
         },
         {
           role: "user", 
@@ -116,12 +141,23 @@ module.exports = createCoreController('api::lesson.lesson', ({ strapi }) => ({
 
     console.log(videoEntries);
 
+    // Create the lesson with flashcards if includePractice is true
+    const lessonData = {
+      name: res.name,
+      video_type: videoType,
+      video: videoEntries,
+      publishedAt: new Date(),
+    };
+    console.log(res.practice);
+
+    // Add flashcards if practice questions were generated
+    if (includePractice && res.practice) {
+      lessonData.flashcards = res.practice;
+    }
+
+    console.log(lessonData);
     const response = await strapi.entityService.create('api::lesson.lesson', {
-      data: {
-        name: res.name,
-        video: videoEntries,
-        publishedAt: new Date(),
-      }
+      data: lessonData
     });
 
     return response;
