@@ -96,6 +96,37 @@ async function processAndUploadImage(imageUrl) {
 
 module.exports = createCoreController('api::lesson.lesson', ({ strapi }) => ({
   async create(ctx) {
+    // Check if user has enough credits
+    const user = ctx.state.user;
+    if (!user) {
+      return ctx.unauthorized('You must be logged in to create lessons');
+    }
+
+    // Get credits per lesson from dynamic config
+    const creditsPerLessonConfig = await strapi.entityService.findMany('api::dynamic-config.dynamic-config', {
+      filters: {
+        name: 'CREDITS_PER_LESSON',
+        publishedAt: { $notNull: true }
+      }
+    });
+
+    if (!creditsPerLessonConfig || creditsPerLessonConfig.length === 0) {
+      return ctx.badRequest('Credits per lesson configuration not found');
+    }
+
+    const creditsRequired = parseInt(creditsPerLessonConfig[0].value, 10);
+    
+    if (isNaN(creditsRequired)) {
+      return ctx.badRequest('Invalid credits per lesson configuration');
+    }
+
+    // Check if user has enough credits
+    if (user.credits < creditsRequired) {
+      return ctx.badRequest('Not enough credits to create a lesson');
+    }
+
+
+
     const { lessonText, videoType, includePractice } = ctx.request.body.data;
 
     const configuration = new Configuration({
@@ -150,7 +181,7 @@ module.exports = createCoreController('api::lesson.lesson', ({ strapi }) => ({
       ]
     });
 
-    console.log(completion.data.choices[0]);
+    
 
     // Parse the response to get sections
     const res = JSON.parse(completion.data.choices[0].message.content);
@@ -160,6 +191,7 @@ module.exports = createCoreController('api::lesson.lesson', ({ strapi }) => ({
       // Generate audio from transcript
       const audioUrl = await generateAudio(section.section_text, index);
 
+      console.log(audioUrl);
       // Call Pexels API to get images based on section text
       const response = await axios.get('https://api.pexels.com/v1/search', {
         headers: {
@@ -171,7 +203,7 @@ module.exports = createCoreController('api::lesson.lesson', ({ strapi }) => ({
           per_page: 10
         }
       });
-
+      console.log(response.data.photos);
       // Randomly select 3 images and process them
       const photos = response.data.photos;
       const selectedImages = [];
@@ -208,6 +240,13 @@ module.exports = createCoreController('api::lesson.lesson', ({ strapi }) => ({
     console.log(lessonData);
     const response = await strapi.entityService.create('api::lesson.lesson', {
       data: lessonData
+    });
+
+    // Deduct credits from user
+    await strapi.entityService.update('plugin::users-permissions.user', user.id, {
+      data: {
+        credits: user.credits - creditsRequired
+      }
     });
 
     return response;
