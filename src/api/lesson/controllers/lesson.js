@@ -107,6 +107,8 @@ module.exports = createCoreController('api::lesson.lesson', ({ strapi }) => ({
     const systemPrompt = includePractice 
       ? `You are a helpful assistant that divides lesson content into logical 
          small bytes which can be easily consumed by a student to learn the concept. 
+         Each section should be 1-2 sentences, the lesson should have 3-4 sections. 
+         Use simple language, analogies, make the content easy to understand, as if you are explaining to a teenager.
          Give a small name to the lesson and create practice questions.
          The response should be valid JSON. Don't use markdown. example format: 
          {
@@ -120,8 +122,10 @@ module.exports = createCoreController('api::lesson.lesson', ({ strapi }) => ({
              { "front": "Question 2?", "back": "Answer 2" }
            ]
          }`
-      : `You are a helpful assistant that divides lesson content into logical 
-         small bytes which can be easily consumed by a student to learn the concept.
+      : `YYou are a helpful assistant that divides lesson content into logical 
+         small bytes which can be easily consumed by a student to learn the concept. 
+         Each section should be 1-2 sentences, the lesson should have 3-4 sections. 
+         Use simple language, analogies, make the content easy to understand, as if you are explaining to a teenager.
          Give a small name to the lesson as well. The response should be valid JSON.
          Don't use markdown. example format: 
          {
