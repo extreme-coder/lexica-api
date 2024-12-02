@@ -17,6 +17,48 @@ const s3 = new AWS.S3({
   region: process.env.AWS_REGION
 });
 
+// Add Polly configuration
+const polly = new AWS.Polly({
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_ACCESS_SECRET,
+  region: process.env.AWS_REGION
+});
+
+// Helper function to generate audio from text using AWS Polly
+async function generateAudio(text, index) {
+  try {
+    // Configure Polly parameters
+    const params = {
+      Engine: 'neural',
+      LanguageCode: 'en-US',
+      OutputFormat: 'mp3',
+      Text: text,
+      TextType: 'text',
+      VoiceId: 'Matthew'
+    };
+
+    // Generate speech
+    const audioStream = await polly.synthesizeSpeech(params).promise();
+    
+    // Generate unique filename
+    const filename = `lessons/audio/${Date.now()}-${index}-${Math.random().toString(36).substring(7)}.mp3`;
+
+    // Upload to S3
+    const uploadResult = await s3.upload({
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: filename,
+      Body: audioStream.AudioStream,
+      ContentType: 'audio/mpeg',
+      ACL: 'public-read'
+    }).promise();
+
+    return uploadResult.Location; // Return the S3 URL
+  } catch (error) {
+    console.error('Error generating audio:', error);
+    throw error;
+  }
+}
+
 // Helper function to download, process and upload image
 async function processAndUploadImage(imageUrl) {
   try {
@@ -110,7 +152,10 @@ module.exports = createCoreController('api::lesson.lesson', ({ strapi }) => ({
     const res = JSON.parse(completion.data.choices[0].message.content);
 
     // Create video entries for each section
-    const videoEntries = await Promise.all(res.sections.map(async section => {
+    const videoEntries = await Promise.all(res.sections.map(async (section, index) => {
+      // Generate audio from transcript
+      const audioUrl = await generateAudio(section.section_text, index);
+
       // Call Pexels API to get images based on section text
       const response = await axios.get('https://api.pexels.com/v1/search', {
         headers: {
@@ -136,6 +181,7 @@ module.exports = createCoreController('api::lesson.lesson', ({ strapi }) => ({
       return {
         transcript: section.section_text,
         image_urls: selectedImages,
+        audio_url: audioUrl
       };
     }));
 
