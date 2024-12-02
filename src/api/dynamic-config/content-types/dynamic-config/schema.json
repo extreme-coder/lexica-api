@@ -1,0 +1,20 @@
+{
+  "kind": "collectionType",
+  "collectionName": "dynamic_configs",
+  "info": {
+    "singularName": "dynamic-config",
+    "pluralName": "dynamic-configs",
+    "displayName": "DynamicConfig"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "name": {
+      "type": "string"
+    },
+    "value": {
+      "type": "string"
+    }
+  }
+}
