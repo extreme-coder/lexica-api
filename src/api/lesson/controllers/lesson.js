@@ -229,6 +229,7 @@ module.exports = createCoreController('api::lesson.lesson', ({ strapi }) => ({
       video_type: videoType,
       video: videoEntries,
       publishedAt: new Date(),
+      user: user.id,
     };
     console.log(res.practice);
 
@@ -250,5 +251,45 @@ module.exports = createCoreController('api::lesson.lesson', ({ strapi }) => ({
     });
 
     return response;
+  },
+
+  // Add a custom find method to filter lessons by user
+  async find(ctx) {
+    const user = ctx.state.user;
+    if (!user) {
+      console.log('No user');
+      return ctx.unauthorized('You must be logged in to view lessons');
+    }
+
+    // Add user filter to the query
+    ctx.query.filters = {
+      ...(ctx.query.filters || {}),
+      user: user.id
+    };
+    console.log(ctx.query);
+
+    const { data, meta } = await super.find(ctx);
+    return { data, meta };
+  },
+
+  // Add a custom findOne method to ensure users can only access their own lessons
+  async findOne(ctx) {
+    const user = ctx.state.user;
+    if (!user) {
+      return ctx.unauthorized('You must be logged in to view lessons');
+    }
+
+    const { id } = ctx.params;
+    const entity = await strapi.db.query('api::lesson.lesson').findOne({
+      where: { id, user: user.id },
+      populate: ctx.query.populate
+    });
+
+    if (!entity) {
+      return ctx.notFound('Lesson not found');
+    }
+
+    const sanitizedEntity = await this.sanitizeOutput(entity, ctx);
+    return this.transformResponse(sanitizedEntity);
   }
 }));

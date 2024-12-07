@@ -77,7 +77,18 @@
       ]
     },
     "credits": {
-      "type": "integer"
+      "type": "integer",
+      "configurable": false,
+      "private": false
+    },
+    "subscription_plan": {
+      "type": "enumeration",
+      "enum": [
+        "NONE",
+        "MONTHLY",
+        "YEARLY"
+      ],
+      "default": "NONE"
     }
   }
 }
