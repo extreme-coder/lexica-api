@@ -62,6 +62,39 @@ module.exports = createCoreController('api::subscription.subscription', ({ strap
     } catch (error) {
       return ctx.badRequest('Failed to update subscription');
     }
+  },
+
+  async update_profile_picture(ctx) {
+    const { user } = ctx.state;
+    
+    // Check if files were uploaded
+    if (!ctx.request.files || !ctx.request.files.profile_pic) {
+      return ctx.badRequest('No file uploaded');
+    }
+
+    try {
+      // Upload the file using Strapi's upload plugin
+      const uploadedFiles = await strapi.plugins.upload.services.upload.upload({
+        data: {}, // mandatory declare the data(can be empty), else it will give undefined error
+        files: ctx.request.files.profile_pic
+      });
+
+      // Update the user's profile_pic field with the uploaded file
+      const updatedUser = await strapi.entityService.update('plugin::users-permissions.user', user.id, {
+        data: {
+          profile_pic: uploadedFiles[0].id // Set the reference to the uploaded file
+        },
+      });
+
+      return {
+        data: {
+          profile_pic: uploadedFiles[0]
+        }
+      };
+    } catch (error) {
+      console.error(error);
+      return ctx.badRequest('Failed to upload profile picture');
+    }
   }
 }));
 

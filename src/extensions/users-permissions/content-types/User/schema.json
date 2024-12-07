@@ -78,8 +78,7 @@
     },
     "credits": {
       "type": "integer",
-      "configurable": false,
-      "private": false
+      "configurable": false
     },
     "subscription_plan": {
       "type": "enumeration",
