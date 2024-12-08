@@ -72,12 +72,19 @@ module.exports = createCoreController('api::friend.friend', ({ strapi }) => ({
   // Custom action to find friends
   async findMyFriends(ctx) {
     const { user } = ctx.state;
+    const { status = 'ACCEPTED' } = ctx.query; // Get status from query params, default to 'ACCEPTED'
 
     try {
-      // Find all accepted friend records where the current user is either the user or friend
+      // Validate status parameter
+      const validStatuses = ['ACCEPTED', 'PENDING'];
+      if (!validStatuses.includes(status)) {
+        return ctx.badRequest('Invalid status. Must be either ACCEPTED or PENDING');
+      }
+
+      // Find all friend records with the specified status where the current user is either the user or friend
       const friendRecords = await strapi.db.query('api::friend.friend').findMany({
         where: {
-          status: 'ACCEPTED',
+          status,
           $or: [
             { user: user.id },
             { friend: user.id }
@@ -99,14 +106,118 @@ module.exports = createCoreController('api::friend.friend', ({ strapi }) => ({
         },
       });
 
-      // Transform the response to return only the friend data
+      // Transform the response to include both friend data and request direction
       const friends = friendRecords.map(record => {
-        // If the current user is the 'user', return the 'friend' data
-        // If the current user is the 'friend', return the 'user' data
-        return record.user.id === user.id ? record.friend : record.user;
+        const isSender = record.user.id === user.id;
+        return {
+          friend: isSender ? record.friend : record.user,
+          direction: isSender ? 'sent' : 'received'
+        };
       });
 
-      return { friends };
+      return { 
+        friends,
+        status,
+        count: friends.length
+      };
+    } catch (err) {
+      ctx.throw(500, err);
+    }
+  },
+
+  // Add this new method inside the controller object
+  async removeRequest(ctx) {
+    const { username } = ctx.params;
+    const { user } = ctx.state;
+
+    try {
+      // Find the user by username
+      const targetUser = await strapi.db.query('plugin::users-permissions.user').findOne({
+        where: { username }
+      });
+
+      // Check if user exists
+      if (!targetUser) {
+        return ctx.notFound('User not found');
+      }
+
+      // Find the friend request
+      const friendRequest = await strapi.db.query('api::friend.friend').findOne({
+        where: {
+          user: user.id,
+          friend: targetUser.id,
+          status: 'PENDING'
+        },
+        populate: ['user', 'friend']
+      });
+
+      // Check if request exists
+      if (!friendRequest) {
+        return ctx.notFound('No pending friend request found for this user');
+      }
+
+      // Delete the friend request
+      await strapi.db.query('api::friend.friend').delete({
+        where: { id: friendRequest.id }
+      });
+
+      return {
+        message: 'Friend request cancelled successfully'
+      };
+    } catch (err) {
+      ctx.throw(500, err);
+    }
+  },
+
+  async updateRequest(ctx) {
+    const { username } = ctx.params;
+    const { action } = ctx.request.body;
+    const { user } = ctx.state;
+
+    try {
+      // Validate action
+      const validActions = ['ACCEPT', 'DECLINE'];
+      if (!validActions.includes(action)) {
+        return ctx.badRequest('Invalid action. Must be either ACCEPT or DECLINE');
+      }
+
+      // Find the user by username
+      const requestSender = await strapi.db.query('plugin::users-permissions.user').findOne({
+        where: { username }
+      });
+
+      // Check if user exists
+      if (!requestSender) {
+        return ctx.notFound('User not found');
+      }
+
+      // Find the friend request
+      const friendRequest = await strapi.db.query('api::friend.friend').findOne({
+        where: {
+          user: requestSender.id,
+          friend: user.id,
+          status: 'PENDING'
+        },
+        populate: ['user', 'friend']
+      });
+
+      // Check if request exists
+      if (!friendRequest) {
+        return ctx.notFound('No pending friend request found from this user');
+      }
+
+      // Update the friend request status based on action
+      const newStatus = action === 'ACCEPT' ? 'ACCEPTED' : 'DECLINED';
+      await strapi.db.query('api::friend.friend').update({
+        where: { id: friendRequest.id },
+        data: {
+          status: newStatus
+        }
+      });
+
+      return {
+        message: `Friend request ${newStatus.toLowerCase()} successfully`
+      };
     } catch (err) {
       ctx.throw(500, err);
     }
