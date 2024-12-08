@@ -305,7 +305,18 @@ module.exports = createCoreController('api::lesson.lesson', ({ strapi }) => ({
     // If user has access, fetch the lesson with populated data
     const entity = await strapi.db.query('api::lesson.lesson').findOne({
       where: { id },
-      populate: ctx.query.populate
+      populate: {
+        user: {
+          select: ['id', 'username', 'email'],
+          populate: {
+            profile_pic: true
+          }
+        },
+        video: {
+          populate: ['image_urls']
+        },
+        flashcards: true
+      }
     });
 
     if (!entity) {
@@ -314,5 +325,73 @@ module.exports = createCoreController('api::lesson.lesson', ({ strapi }) => ({
 
     const sanitizedEntity = await this.sanitizeOutput(entity, ctx);
     return this.transformResponse(sanitizedEntity);
+  },
+
+  // Add this new method inside the controller object
+  async shareLesson(ctx) {
+    const user = ctx.state.user;
+    if (!user) {
+      return ctx.unauthorized('You must be logged in to share lessons');
+    }
+
+    const { lessonId, username } = ctx.request.body;
+    
+    if (!lessonId || !username) {
+      return ctx.badRequest('Lesson ID and username are required');
+    }
+
+    try {
+      // First verify the lesson exists and the current user has access to it
+      const userLesson = await strapi.db.query('api::user-lesson.user-lesson').findOne({
+        where: { 
+          user: user.id,
+          lesson: lessonId
+        }
+      });
+
+      if (!userLesson) {
+        return ctx.forbidden('You do not have access to this lesson');
+      }
+
+      // Find the target user by username
+      const targetUser = await strapi.db.query('plugin::users-permissions.user').findOne({
+        where: { username }
+      });
+
+      if (!targetUser) {
+        return ctx.notFound('User not found');
+      }
+
+      // Check if the target user already has access to this lesson
+      const existingShare = await strapi.db.query('api::user-lesson.user-lesson').findOne({
+        where: { 
+          user: targetUser.id,
+          lesson: lessonId
+        }
+      });
+
+      if (existingShare) {
+        return ctx.badRequest('User already has access to this lesson');
+      }
+
+      // Create new user-lesson entry for the target user
+      const sharedLesson = await strapi.entityService.create('api::user-lesson.user-lesson', {
+        data: {
+          user: targetUser.id,
+          lesson: lessonId,
+          publishedAt: new Date(),
+          shared_by: user.id
+        }
+      });
+
+      return {
+        success: true,
+        message: `Lesson successfully shared with ${username}`
+      };
+
+    } catch (error) {
+      console.error('Error sharing lesson:', error);
+      return ctx.internalServerError('An error occurred while sharing the lesson');
+    }
   }
 }));
