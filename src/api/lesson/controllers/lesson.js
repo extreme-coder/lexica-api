@@ -243,6 +243,15 @@ module.exports = createCoreController('api::lesson.lesson', ({ strapi }) => ({
       data: lessonData
     });
 
+    // Create user-lesson entry for the creator
+    await strapi.entityService.create('api::user-lesson.user-lesson', {
+      data: {
+        user: user.id,
+        lesson: response.id,
+        publishedAt: new Date()
+      }
+    });
+
     // Deduct credits from user
     await strapi.entityService.update('plugin::users-permissions.user', user.id, {
       data: {
@@ -272,7 +281,7 @@ module.exports = createCoreController('api::lesson.lesson', ({ strapi }) => ({
     return { data, meta };
   },
 
-  // Add a custom findOne method to ensure users can only access their own lessons
+  // Update the findOne method to check user-lesson relationship
   async findOne(ctx) {
     const user = ctx.state.user;
     if (!user) {
@@ -280,8 +289,22 @@ module.exports = createCoreController('api::lesson.lesson', ({ strapi }) => ({
     }
 
     const { id } = ctx.params;
+    
+    // First check if user has access to this lesson via user-lessons
+    const userLesson = await strapi.db.query('api::user-lesson.user-lesson').findOne({
+      where: { 
+        user: user.id,
+        lesson: id
+      }
+    });
+
+    if (!userLesson) {
+      return ctx.notFound('Lesson not found or access denied');
+    }
+
+    // If user has access, fetch the lesson with populated data
     const entity = await strapi.db.query('api::lesson.lesson').findOne({
-      where: { id, user: user.id },
+      where: { id },
       populate: ctx.query.populate
     });
 

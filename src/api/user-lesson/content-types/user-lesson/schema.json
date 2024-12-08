@@ -1,0 +1,24 @@
+{
+  "kind": "collectionType",
+  "collectionName": "user_lessons",
+  "info": {
+    "singularName": "user-lesson",
+    "pluralName": "user-lessons",
+    "displayName": "UserLesson"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "lesson": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::lesson.lesson"
+    },
+    "user": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user"
+    }
+  }
+}
