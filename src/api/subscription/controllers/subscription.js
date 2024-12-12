@@ -201,7 +201,8 @@ module.exports = createCoreController('api::subscription.subscription', ({ strap
         await strapi.service('api::credit-history-item.credit-history-item').addCredits({
           user: user.id,
           source: 'ONE_TIME',
-          credits: 100
+          credits: 100,
+          original_trx_id: transaction.originalTransactionId
         });
 
         // Get the updated user to return current credits

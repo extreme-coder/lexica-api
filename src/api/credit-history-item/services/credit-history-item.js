@@ -6,7 +6,7 @@
 
 module.exports = {
   async addCredits(data) {
-    const { user, source, planId, credits } = data;
+    const { user, source, planId, credits, original_trx_id } = data;
 
     // Get the current user with their credits
     const currentUser = await strapi.entityService.findOne(
@@ -45,7 +45,7 @@ module.exports = {
       }
     );
 
-    // Create credit history entry
+    // Create credit history entry with original_trx_id
     creditHistoryEntry = await strapi.entityService.create('api::credit-history-item.credit-history-item', {
       data: {
         user: user,
@@ -53,6 +53,7 @@ module.exports = {
         action: action,
         source: source,
         user_subscription: planId,
+        original_trx_id: original_trx_id,
         publishedAt: new Date(),
       },
     });
