@@ -1,0 +1,41 @@
+{
+  "kind": "collectionType",
+  "collectionName": "credit_history_items",
+  "info": {
+    "singularName": "credit-history-item",
+    "pluralName": "credit-history-items",
+    "displayName": "CreditHistoryItem"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "user": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "user_subscription": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::user-subscription.user-subscription"
+    },
+    "credits": {
+      "type": "integer"
+    },
+    "action": {
+      "type": "enumeration",
+      "enum": [
+        "ADDED",
+        "REPLACED"
+      ]
+    },
+    "source": {
+      "type": "enumeration",
+      "enum": [
+        "ONE_TIME",
+        "PLAN"
+      ]
+    }
+  }
+}

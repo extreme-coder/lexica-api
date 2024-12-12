@@ -1,0 +1,55 @@
+{
+  "kind": "collectionType",
+  "collectionName": "user_subscriptions",
+  "info": {
+    "singularName": "user-subscription",
+    "pluralName": "user-subscriptions",
+    "displayName": "UserSubscription",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "user": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "plan": {
+      "type": "enumeration",
+      "enum": [
+        "FREE",
+        "PRO"
+      ]
+    },
+    "start_date": {
+      "type": "datetime"
+    },
+    "last_credits_date": {
+      "type": "datetime"
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": [
+        "ACTIVE",
+        "EXPIRED"
+      ]
+    },
+    "trx_id": {
+      "type": "string"
+    },
+    "expiry_date": {
+      "type": "datetime"
+    },
+    "originalTransactionId": {
+      "type": "string"
+    },
+    "productId": {
+      "type": "string"
+    },
+    "last_verified_at": {
+      "type": "datetime"
+    }
+  }
+}
