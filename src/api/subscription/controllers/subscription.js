@@ -30,7 +30,7 @@ async function verifyWithAppStoreServer(transactionData) {
     // Read and format the private key
     let privateKeyData;
     try {
-      privateKeyData = fs.readFileSync('applekey.p8', 'utf8');
+      privateKeyData = fs.readFileSync('applekey.pem', 'utf8');
       console.log('Successfully read private key from file');
     } catch (err) {
       console.log('Error reading private key file:', err.message);
