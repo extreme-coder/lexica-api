@@ -16,6 +16,12 @@ async function verifyWithAppStoreServer(transactionData) {
     const issuerId = process.env.APPLE_ISSUER_ID;
     const keyId = process.env.APPLE_KEY_ID;
 
+    console.log('Using credentials:', {
+      issuerId,
+      keyId,
+      environment: transactionData.environment
+    });
+
     // Determine the environment-specific URL
     const baseUrl = transactionData.environment === 'Sandbox' 
       ? 'https://api.storekit-sandbox.itunes.apple.com/inApps/v1'
@@ -24,13 +30,25 @@ async function verifyWithAppStoreServer(transactionData) {
     // Read and format the private key
     let privateKeyData;
     try {
-      // First try reading from file
       privateKeyData = fs.readFileSync('applekey.p8', 'utf8');
+      console.log('Successfully read private key from file');
     } catch (err) {
-      // Fallback to environment variable if file doesn't exist
-      console.log('Error reading private key file, using environment variable');
+      console.log('Error reading private key file:', err.message);
+      console.log('Falling back to environment variable');
       privateKeyData = process.env.APPLE_PRIVATE_KEY.replace(/\\n/g, '\n');
     }
+
+    // Create JWT payload
+    const now = Math.floor(Date.now() / 1000);
+    const payload = {
+      iss: issuerId,
+      iat: now,
+      exp: now + 3600, // 1 hour expiration
+      aud: 'appstoreconnect-v1',
+      bid: transactionData.bundleId // Add bundle ID to the token
+    };
+
+    console.log('Creating JWT with payload:', payload);
 
     const privateKey = createPrivateKey({
       key: privateKeyData,
@@ -38,13 +56,8 @@ async function verifyWithAppStoreServer(transactionData) {
       type: 'pkcs8'
     });
 
-    // Generate a signed JWT token for App Store API authentication
-    const token = jwt.sign({
-      iss: issuerId,
-      iat: Math.floor(Date.now() / 1000),
-      exp: Math.floor(Date.now() / 1000) + 3600, // 1 hour expiration
-      aud: 'appstoreconnect-v1'
-    }, privateKey, {
+    // Generate token with more specific options
+    const token = jwt.sign(payload, privateKey, {
       algorithm: 'ES256',
       header: {
         alg: 'ES256',
@@ -53,18 +66,30 @@ async function verifyWithAppStoreServer(transactionData) {
       }
     });
 
-    console.log(`Calling App Store API (${transactionData.environment}):`, 
-      `${baseUrl}/transactions/${transactionData.transactionId}`);
+    console.log('JWT Token generated successfully');
+    
+    const requestUrl = `${baseUrl}/transactions/${transactionData.transactionId}`;
+    console.log('Making request to:', requestUrl);
 
     // Call Apple's App Store Server API to verify the transaction
-    const response = await axios.get(
-      `${baseUrl}/transactions/${transactionData.transactionId}`,
-      {
+    try {
+      const response = await axios.get(requestUrl, {
         headers: {
-          Authorization: `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json'
         }
-      }
-    );
+      });
+      
+      console.log('Response status:', response.status);
+      return response;
+    } catch (error) {
+      console.error('API call failed:', {
+        status: error.response?.status,
+        data: error.response?.data,
+        headers: error.response?.headers
+      });
+      throw error;
+    }
 
     // Verify the response
     if (response.status === 200) {
