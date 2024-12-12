@@ -86,7 +86,12 @@ async function verifyWithAppStoreServer(transactionData) {
         const signedTransaction = response.data.signedTransaction;
         
         // Verify the JWS signature
-        const publicKeyResponse = await axios.get(`${baseUrl}/public-key`);
+        const publicKeyResponse = await axios.get(`${baseUrl}/public-key`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json'
+          }
+        });
         const publicKey = publicKeyResponse.data;
 
         const verifiedData = jwt.verify(signedTransaction, publicKey, {
