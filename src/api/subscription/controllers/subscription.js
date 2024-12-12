@@ -86,7 +86,11 @@ async function verifyWithAppStoreServer(transactionData) {
         const signedTransaction = response.data.signedTransaction;
         
         // Verify the JWS signature
-        const publicKeyResponse = await axios.get(`${baseUrl}/public-key`, {
+        const publicKeyBaseUrl = transactionData.environment === 'Sandbox'
+          ? 'https://buy.storekit-sandbox.itunes.apple.com'
+          : 'https://buy.storekit.itunes.apple.com';
+          
+        const publicKeyResponse = await axios.get(`${publicKeyBaseUrl}/verifyReceipt/public-key`, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Accept': 'application/json'
