@@ -83,35 +83,9 @@ async function verifyWithAppStoreServer(transactionData) {
       console.log('Response status:', response.status);
       
       if (response.status === 200) {
-        const signedTransaction = response.data.signedTransaction;
-        
-        // Verify the JWS signature
-        const publicKeyBaseUrl = transactionData.environment === 'Sandbox'
-          ? 'https://buy.storekit-sandbox.itunes.apple.com'
-          : 'https://buy.storekit.itunes.apple.com';
-          
-        const publicKeyResponse = await axios.get(`${publicKeyBaseUrl}/verifyReceipt/public-key`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Accept': 'application/json'
-          }
-        });
-        const publicKey = publicKeyResponse.data;
-
-        const verifiedData = jwt.verify(signedTransaction, publicKey, {
-          algorithms: ['ES256']
-        });
-
-        // Compare the verified data with the provided transaction data
-        if (verifiedData.transactionId !== transactionData.transactionId ||
-            verifiedData.originalTransactionId !== transactionData.originalTransactionId ||
-            verifiedData.bundleId !== transactionData.bundleId) {
-          throw new Error('Transaction data mismatch');
-        }
-
         return {
           isValid: true,
-          verifiedData
+          verifiedData: response.data
         };
       }
       
