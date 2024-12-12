@@ -7,13 +7,23 @@
 const { createCoreController } = require('@strapi/strapi').factories;
 const jwt = require('jsonwebtoken');
 const axios = require('axios');
+const { createPrivateKey } = require('crypto');
 
 async function verifyWithAppStoreServer(transactionData) {
   try {
     // Get the issuer ID and key ID from env variables
     const issuerId = process.env.APPLE_ISSUER_ID;
     const keyId = process.env.APPLE_KEY_ID;
-    const privateKey = process.env.APPLE_PRIVATE_KEY.replace(/\\n/g, '\n'); // Fix private key format
+
+    
+
+    const privateKey = createPrivateKey({
+      key: fs.readFileSync('applekey.pem'),
+      format: 'pem',
+      type: 'pkcs8'
+    });
+
+    //const privateKey = process.env.APPLE_PRIVATE_KEY.replace(/\\n/g, '\n'); // Fix private key format
 
     // Generate a signed JWT token for App Store API authentication
     const token = jwt.sign({
