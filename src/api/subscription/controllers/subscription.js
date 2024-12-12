@@ -16,6 +16,11 @@ async function verifyWithAppStoreServer(transactionData) {
     const issuerId = process.env.APPLE_ISSUER_ID;
     const keyId = process.env.APPLE_KEY_ID;
 
+    // Determine the environment-specific URL
+    const baseUrl = transactionData.environment === 'Sandbox' 
+      ? 'https://api.storekit-sandbox.itunes.apple.com/inApps/v1'
+      : 'https://api.storekit.itunes.apple.com/inApps/v1';
+
     // Read and format the private key
     let privateKeyData;
     try {
@@ -48,9 +53,12 @@ async function verifyWithAppStoreServer(transactionData) {
       }
     });
 
+    console.log(`Calling App Store API (${transactionData.environment}):`, 
+      `${baseUrl}/transactions/${transactionData.transactionId}`);
+
     // Call Apple's App Store Server API to verify the transaction
     const response = await axios.get(
-      `https://api.storekit.itunes.apple.com/inApps/v1/transactions/${transactionData.transactionId}`,
+      `${baseUrl}/transactions/${transactionData.transactionId}`,
       {
         headers: {
           Authorization: `Bearer ${token}`
