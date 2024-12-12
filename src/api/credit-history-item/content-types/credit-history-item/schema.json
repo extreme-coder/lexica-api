@@ -4,7 +4,8 @@
   "info": {
     "singularName": "credit-history-item",
     "pluralName": "credit-history-items",
-    "displayName": "CreditHistoryItem"
+    "displayName": "CreditHistoryItem",
+    "description": ""
   },
   "options": {
     "draftAndPublish": true
@@ -36,6 +37,9 @@
         "ONE_TIME",
         "PLAN"
       ]
+    },
+    "original_trx_id": {
+      "type": "string"
     }
   }
 }
