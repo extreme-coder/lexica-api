@@ -81,7 +81,32 @@ async function verifyWithAppStoreServer(transactionData) {
       });
       
       console.log('Response status:', response.status);
-      return response;
+      
+      if (response.status === 200) {
+        const signedTransaction = response.data.signedTransaction;
+        
+        // Verify the JWS signature
+        const publicKeyResponse = await axios.get(`${baseUrl}/public-key`);
+        const publicKey = publicKeyResponse.data;
+
+        const verifiedData = jwt.verify(signedTransaction, publicKey, {
+          algorithms: ['ES256']
+        });
+
+        // Compare the verified data with the provided transaction data
+        if (verifiedData.transactionId !== transactionData.transactionId ||
+            verifiedData.originalTransactionId !== transactionData.originalTransactionId ||
+            verifiedData.bundleId !== transactionData.bundleId) {
+          throw new Error('Transaction data mismatch');
+        }
+
+        return {
+          isValid: true,
+          verifiedData
+        };
+      }
+      
+      throw new Error('Failed to verify with App Store');
     } catch (error) {
       console.error('API call failed:', {
         status: error.response?.status,
@@ -91,33 +116,6 @@ async function verifyWithAppStoreServer(transactionData) {
       throw error;
     }
 
-    // Verify the response
-    if (response.status === 200) {
-      const signedTransaction = response.data.signedTransaction;
-      
-      // Verify the JWS signature
-      // Note: Apple's public key is available at https://api.storekit.itunes.apple.com/inApps/v1/public-key
-      const publicKeyResponse = await axios.get('https://api.storekit.itunes.apple.com/inApps/v1/public-key');
-      const publicKey = publicKeyResponse.data;
-
-      const verifiedData = jwt.verify(signedTransaction, publicKey, {
-        algorithms: ['ES256']
-      });
-
-      // Compare the verified data with the provided transaction data
-      if (verifiedData.transactionId !== transactionData.transactionId ||
-          verifiedData.originalTransactionId !== transactionData.originalTransactionId ||
-          verifiedData.bundleId !== transactionData.bundleId) {
-        throw new Error('Transaction data mismatch');
-      }
-
-      return {
-        isValid: true,
-        verifiedData
-      };
-    }
-
-    throw new Error('Failed to verify with App Store');
   } catch (error) {
     console.error('App Store verification error:', error);
     return { isValid: false, error: error.message };
