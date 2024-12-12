@@ -13,7 +13,7 @@ async function verifyWithAppStoreServer(transactionData) {
     // Get the issuer ID and key ID from env variables
     const issuerId = process.env.APPLE_ISSUER_ID;
     const keyId = process.env.APPLE_KEY_ID;
-    const privateKey = process.env.APPLE_PRIVATE_KEY; // Your private key in P8 format
+    const privateKey = process.env.APPLE_PRIVATE_KEY.replace(/\\n/g, '\n'); // Fix private key format
 
     // Generate a signed JWT token for App Store API authentication
     const token = jwt.sign({
