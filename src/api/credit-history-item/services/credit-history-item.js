@@ -9,7 +9,7 @@ module.exports = {
     const { user, source, planId, credits: inputCredits, original_trx_id } = data;
     
     // Convert credits to number
-    const credits = Number(inputCredits);
+    let credits = Number(inputCredits);
 
     // Get the current user with their credits
     const currentUser = await strapi.entityService.findOne(
