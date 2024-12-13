@@ -221,7 +221,7 @@ module.exports = createCoreController('api::subscription.subscription', ({ strap
           return ctx.badRequest(`Invalid transaction: ${verificationResult.error}`);
         }
 
-        // Create or update user-subscription entry
+        // Create base subscription data without last_credits_date
         const subscriptionData = {
           user: user.id,
           plan: 'PRO',
@@ -233,15 +233,14 @@ module.exports = createCoreController('api::subscription.subscription', ({ strap
           environment: transaction.environment,
           productId: transaction.productId,
           last_verified_at: new Date(),
-          publishedAt: new Date(),
-          last_credits_date: new Date()
+          publishedAt: new Date()
         };
 
         // Find existing subscription
         const existingSubscription = await strapi.db.query('api::user-subscription.user-subscription').findOne({
           where: { 
             user: user.id,
-            trx_id: transaction.originalTransactionId
+            originalTransactionId: transaction.originalTransactionId
           }
         });
 
@@ -251,20 +250,22 @@ module.exports = createCoreController('api::subscription.subscription', ({ strap
             data: subscriptionData
           });
         } else {
-          // Create new subscription
+          // Create new subscription - add last_credits_date only for new subscriptions
           try {
             await strapi.entityService.create('api::user-subscription.user-subscription', {
-              data: subscriptionData
+              data: {
+                ...subscriptionData,
+                last_credits_date: new Date()  // Add last_credits_date only for new subscriptions
+              }
             });
           } catch (error) {
             console.error('Validation error creating subscription:', error);
             if (error.details && error.details.errors) {
-              // Log specific validation errors
               error.details.errors.forEach(err => {
                 console.error(`Field: ${err.path.join('.')}, Message: ${err.message}`);
               });
             }
-            throw error; // Re-throw to be caught by outer catch block
+            throw error;
           }
         }
 
