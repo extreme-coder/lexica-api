@@ -215,6 +215,21 @@ module.exports = createCoreController('api::friend.friend', ({ strapi }) => ({
         }
       });
 
+      // If request is accepted, add credits to the request sender
+      if (action === 'ACCEPT') {
+        // Get credit amount from dynamic config using the service
+        const config = await strapi.service('api::dynamic-config.dynamic-config').getConfigByName('ADD_FRIEND_CREDITS');
+
+        if (config && config.value) {
+          // Add credits to the request sender
+          await strapi.service('api::credit-history-item.credit-history-item').addCredits({
+            user: requestSender.id,
+            credits: config.value,
+            source: 'FRIEND'
+          });
+        }
+      }
+
       return {
         message: `Friend request ${newStatus.toLowerCase()} successfully`
       };

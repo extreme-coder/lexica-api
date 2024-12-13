@@ -6,7 +6,10 @@
 
 module.exports = {
   async addCredits(data) {
-    const { user, source, planId, credits, original_trx_id } = data;
+    const { user, source, planId, credits: inputCredits, original_trx_id } = data;
+    
+    // Convert credits to number
+    const credits = Number(inputCredits);
 
     // Get the current user with their credits
     const currentUser = await strapi.entityService.findOne(
@@ -19,7 +22,7 @@ module.exports = {
     let updatedCredits = currentUser.credits || 0;
     let action = 'ADDED';
 
-    if (source === 'ONE_TIME') {
+    if (source === 'ONE_TIME' || source === 'FRIEND') {
       // For one-time credits, always add to existing credits
       updatedCredits += credits;
     } else if (source === 'PLAN') {

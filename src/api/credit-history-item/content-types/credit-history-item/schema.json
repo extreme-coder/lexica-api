@@ -35,7 +35,8 @@
       "type": "enumeration",
       "enum": [
         "ONE_TIME",
-        "PLAN"
+        "PLAN",
+        "FRIEND"
       ]
     },
     "original_trx_id": {

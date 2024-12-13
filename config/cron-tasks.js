@@ -32,7 +32,7 @@ module.exports = {
           
           // Load credits value from dynamic config
           const creditsConfig = await strapi.service('api::dynamic-config.dynamic-config').find({
-            filters: { key: creditsConfigKey }
+            filters: { name: creditsConfigKey }
           });
 
           const creditsToAdd = creditsConfig?.results?.[0]?.value || 0;
