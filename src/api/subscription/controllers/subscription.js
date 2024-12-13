@@ -226,14 +226,15 @@ module.exports = createCoreController('api::subscription.subscription', ({ strap
           user: user.id,
           plan: 'PRO',
           status: 'ACTIVE',
-          start_date: new Date(),
+          start_date: new Date(transaction.originalPurchaseDate),
           expiry_date: new Date(transaction.expiresDate),
           trx_id: transaction.transactionId,
           originalTransactionId: transaction.originalTransactionId,
           environment: transaction.environment,
           productId: transaction.productId,
           last_verified_at: new Date(),
-          publishedAt: new Date()
+          publishedAt: new Date(),
+          last_credits_date: new Date()
         };
 
         // Find existing subscription

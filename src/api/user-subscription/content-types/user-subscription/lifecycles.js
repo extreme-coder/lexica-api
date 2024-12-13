@@ -33,13 +33,6 @@ module.exports = {
         planId: populatedResult.id,
         credits: creditsToAdd
       });
-
-      // Set initial lastCreditsDate
-      await strapi.entityService.update('api::user-subscription.user-subscription', populatedResult.id, {
-        data: {
-          last_credits_date: new Date()
-        }
-      });
     } catch (error) {
       console.error('Error in UserSubscription afterCreate:', error);
       throw error;
