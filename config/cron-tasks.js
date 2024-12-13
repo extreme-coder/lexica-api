@@ -13,11 +13,8 @@ module.exports = {
 
         // Find eligible subscriptions
         const subscriptions = await strapi.entityService.findMany('api::user-subscription.user-subscription', {
-          filters: {
-            plan: {
-              $in: ['FREE', 'PRO']
-            },
-            lastCreditsDate: {
+          filters: {            
+            last_credits_date: {
               $lt: oneMonthAgo
             },
             status: 'ACTIVE'
@@ -27,6 +24,40 @@ module.exports = {
 
         // Process each subscription
         for (const subscription of subscriptions) {
+          console.log('processing subscription');
+          console.log(subscription);
+          // For PRO plans, verify subscription status with Apple
+          if (subscription.plan === 'PRO') {
+            const transactionData = {
+              transactionId: subscription.transactionId,
+              originalTransactionId: subscription.originalTransactionId,
+              productId: subscription.productId,
+              bundleId: 'com.thegamebox.Byte',
+              environment: subscription.environment
+            };
+
+            const verificationResult = await strapi
+              .service('api::user-subscription.transaction-verification')
+              .verifyAppleTransaction(transactionData);
+            console.log('verificationResult:');
+            console.log(verificationResult);
+            if (!verificationResult.isValid) {
+              strapi.log.warn(`PRO subscription ${subscription.id} failed verification: ${verificationResult.error}`);
+              // Update subscription status to EXPIRED
+              await strapi.entityService.update('api::user-subscription.user-subscription', subscription.id, {
+                data: { status: 'EXPIRED' }
+              });
+              continue;
+            }
+
+            // Update subscription with latest data from Apple
+            await strapi.entityService.update('api::user-subscription.user-subscription', subscription.id, {
+              data: {
+                verifiedData: verificationResult.verifiedData
+              }
+            });
+          }
+
           // For FREE plans, check if user has an active PRO plan
           if (subscription.plan === 'FREE') {
             const activeProPlan = await strapi.entityService.findMany('api::user-subscription.user-subscription', {
@@ -76,7 +107,8 @@ module.exports = {
       }
     },
     options: {
-      rule: '0 0 1 * *', // Run at midnight on the first day of each month
+      // run every 2 minutes
+      rule: '*/2 * * * *', 
     },
   },
 }; 
