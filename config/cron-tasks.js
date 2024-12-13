@@ -27,6 +27,23 @@ module.exports = {
 
         // Process each subscription
         for (const subscription of subscriptions) {
+          // For FREE plans, check if user has an active PRO plan
+          if (subscription.plan === 'FREE') {
+            const activeProPlan = await strapi.entityService.findMany('api::user-subscription.user-subscription', {
+              filters: {
+                user: subscription.user.id,
+                plan: 'PRO',
+                status: 'ACTIVE'
+              }
+            });
+
+            // Skip if user has an active PRO plan
+            if (activeProPlan.length > 0) {
+              strapi.log.info(`Skipping FREE plan credits for user ${subscription.user.id} - has active PRO plan`);
+              continue;
+            }
+          }
+
           // Determine credits based on plan
           const creditsConfigKey = subscription.plan === 'FREE' ? 'FREE_PLAN_CREDITS' : 'PRO_PLAN_CREDITS';
           
