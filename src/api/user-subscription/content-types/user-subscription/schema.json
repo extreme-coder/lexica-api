@@ -50,6 +50,9 @@
     },
     "last_verified_at": {
       "type": "datetime"
+    },
+    "environment": {
+      "type": "string"
     }
   }
 }
