@@ -50,12 +50,51 @@ module.exports = {
               continue;
             }
 
-            // Update subscription with latest data from Apple
-            await strapi.entityService.update('api::user-subscription.user-subscription', subscription.id, {
-              data: {
-                verifiedData: verificationResult.verifiedData
+            // Extract and decode the signed transaction info
+            const signedTransactionInfo = verificationResult.verifiedData?.signedTransactionInfo;
+            if (signedTransactionInfo) {
+              try {
+                // Get just the payload part (second part) of the JWS
+                const [, payloadBase64] = signedTransactionInfo.split('.');
+                // Decode the base64 payload
+                const decodedPayload = Buffer.from(payloadBase64, 'base64').toString('utf8');
+                const transactionInfo = JSON.parse(decodedPayload);
+
+                console.log('Decoded transaction info:', transactionInfo);
+
+                const expirationDate = new Date(transactionInfo.expirationDate);
+                const purchaseDate = new Date(transactionInfo.purchaseDate);
+                const isTrialPeriod = transactionInfo.type === 'Trial';
+                const isUpgraded = transactionInfo.type === 'Upgrade';
+
+                // Update subscription with extracted data
+                await strapi.entityService.update('api::user-subscription.user-subscription', subscription.id, {
+                  data: {
+                    verifiedData: verificationResult.verifiedData,
+                    decodedTransactionInfo: transactionInfo, // Store decoded info for reference
+                    expirationDate: expirationDate,
+                    purchaseDate: purchaseDate,
+                    isTrialPeriod: isTrialPeriod,
+                    isUpgraded: isUpgraded,
+                    lastVerifiedAt: new Date(),
+                    // If current date is past expiration, mark as expired
+                    status: new Date() > expirationDate ? 'EXPIRED' : 'ACTIVE'
+                  }
+                });
+
+                // Log the verification details
+                strapi.log.info(`Updated subscription ${subscription.id} with verification data:`, {
+                  expirationDate,
+                  purchaseDate,
+                  isTrialPeriod,
+                  isUpgraded,
+                  status: new Date() > expirationDate ? 'EXPIRED' : 'ACTIVE'
+                });
+              } catch (decodeError) {
+                strapi.log.error(`Failed to decode transaction info for subscription ${subscription.id}:`, decodeError);
+                console.log('Raw signedTransactionInfo:', signedTransactionInfo);
               }
-            });
+            }
           }
 
           // For FREE plans, check if user has an active PRO plan
@@ -96,7 +135,7 @@ module.exports = {
           // Update lastCreditsDate
           await strapi.entityService.update('api::user-subscription.user-subscription', subscription.id, {
             data: {
-              lastCreditsDate: now
+              last_credits_date: new Date()
             }
           });
         }
