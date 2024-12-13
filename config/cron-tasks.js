@@ -29,7 +29,7 @@ module.exports = {
           // For PRO plans, verify subscription status with Apple
           if (subscription.plan === 'PRO') {
             const transactionData = {
-              transactionId: subscription.transactionId,
+              transactionId: subscription.originalTransactionId,
               originalTransactionId: subscription.originalTransactionId,
               productId: subscription.productId,
               bundleId: 'com.thegamebox.Byte',
@@ -107,8 +107,8 @@ module.exports = {
       }
     },
     options: {
-      // run every 2 minutes
-      rule: '*/2 * * * *', 
+      // run every minute
+      rule: '* * * * *', 
     },
   },
 }; 
