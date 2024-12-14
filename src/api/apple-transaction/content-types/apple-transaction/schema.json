@@ -1,0 +1,30 @@
+{
+  "kind": "collectionType",
+  "collectionName": "apple_transactions",
+  "info": {
+    "singularName": "apple-transaction",
+    "pluralName": "apple-transactions",
+    "displayName": "AppleTransaction",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "trx_id": {
+      "type": "string"
+    },
+    "original_trx_id": {
+      "type": "string"
+    },
+    "expiry_date": {
+      "type": "datetime"
+    },
+    "productId": {
+      "type": "string"
+    },
+    "environment": {
+      "type": "string"
+    }
+  }
+}

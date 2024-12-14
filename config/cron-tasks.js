@@ -28,6 +28,15 @@ module.exports = {
           console.log(subscription);
           // For PRO plans, verify subscription status with Apple
           if (subscription.plan === 'PRO') {
+            // First, sync all transactions for this subscription
+            try {
+              await strapi.service('api::apple-transaction.apple-transaction')
+                .fetchAndStoreTransactions(subscription);
+              strapi.log.info(`Synced Apple transactions for subscription ${subscription.id}`);
+            } catch (syncError) {
+              strapi.log.error(`Failed to sync Apple transactions for subscription ${subscription.id}:`, syncError);
+            }
+
             const transactionData = {
               transactionId: subscription.originalTransactionId,
               originalTransactionId: subscription.originalTransactionId,
