@@ -25,6 +25,16 @@
     },
     "environment": {
       "type": "string"
+    },
+    "user": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "user_subscription": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::user-subscription.user-subscription"
     }
   }
 }

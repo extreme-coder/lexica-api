@@ -76,13 +76,10 @@ module.exports = {
       // Process each transaction
       for (const signedTransaction of response.data.signedTransactions) {
         try {
-          // Get just the payload part (second part) of the JWS
           const [, payloadBase64] = signedTransaction.split('.');
-          // Decode the base64 payload
           const decodedPayload = Buffer.from(payloadBase64, 'base64').toString('utf8');
           const transactionData = JSON.parse(decodedPayload);
-          console.log('transactionData:');
-          console.log(transactionData);
+          console.log('transactionData:', transactionData);
 
           // Check if transaction already exists
           const existingTransaction = await strapi.query('api::apple-transaction.apple-transaction').findOne({
@@ -92,7 +89,7 @@ module.exports = {
           });
 
           if (!existingTransaction) {
-            // Create new transaction record
+            // Create new transaction record with relations
             await strapi.entityService.create('api::apple-transaction.apple-transaction', {
               data: {
                 trx_id: transactionData.transactionId,
@@ -100,9 +97,25 @@ module.exports = {
                 expiry_date: new Date(transactionData.expiresDate),
                 productId: transactionData.productId,
                 environment: environment,
-                publishedAt: new Date(),                
+                publishedAt: new Date(),
+                // Add relations to user and user_subscription
+                user: userSubscription.user.id,
+                user_subscription: userSubscription.id
               }
             });
+
+            // Update user subscription with latest expiry date if this is the most recent transaction
+            const currentExpiryDate = userSubscription.expirationDate ? new Date(userSubscription.expirationDate) : null;
+            const transactionExpiryDate = new Date(transactionData.expiresDate);
+            
+            if (!currentExpiryDate || transactionExpiryDate > currentExpiryDate) {
+              await strapi.entityService.update('api::user-subscription.user-subscription', userSubscription.id, {
+                data: {
+                  expirationDate: transactionExpiryDate,
+                  status: new Date() > transactionExpiryDate ? 'EXPIRED' : 'ACTIVE'
+                }
+              });
+            }
           }
         } catch (error) {
           console.error('Error processing transaction:', error);
