@@ -19,7 +19,8 @@ module.exports = {
             last_credits_date: {
               $lt: oneMonthAgo
             }
-          }
+          },
+          populate: ['user']
         });
 
         // First loop: Sync only eligible PRO subscriptions with Apple
