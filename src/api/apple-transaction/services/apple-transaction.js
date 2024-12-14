@@ -54,14 +54,12 @@ module.exports = {
       const environment = userSubscription.environment || 'Production';
       const bundleId = 'com.thegamebox.Byte';
 
-      // Determine the environment-specific URL
       const baseUrl = environment === 'Sandbox' 
         ? 'https://api.storekit-sandbox.itunes.apple.com/inApps/v1'
         : 'https://api.storekit.itunes.apple.com/inApps/v1';
 
       const token = await this.generateAppStoreToken(bundleId);
       
-      // Fetch all transactions for the original transaction ID
       const historyUrl = `${baseUrl}/history/${userSubscription.originalTransactionId}`;
       const response = await axios.get(historyUrl, {
         headers: {
@@ -78,18 +76,13 @@ module.exports = {
       // Process each transaction
       for (const signedTransaction of response.data.signedTransactions) {
         try {
-          // Verify and decode the signed transaction
-          const verifyUrl = `${baseUrl}/transactions/verify`;
-          const verifyResponse = await axios.post(verifyUrl, {
-            signedTransaction
-          }, {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Accept': 'application/json'
-            }
-          });
-
-          const transactionData = verifyResponse.data.signedTransactionInfo;
+          // Get just the payload part (second part) of the JWS
+          const [, payloadBase64] = signedTransaction.split('.');
+          // Decode the base64 payload
+          const decodedPayload = Buffer.from(payloadBase64, 'base64').toString('utf8');
+          const transactionData = JSON.parse(decodedPayload);
+          console.log('transactionData:');
+          console.log(transactionData);
 
           // Check if transaction already exists
           const existingTransaction = await strapi.query('api::apple-transaction.apple-transaction').findOne({
@@ -107,13 +100,12 @@ module.exports = {
                 expiry_date: new Date(transactionData.expiresDate),
                 productId: transactionData.productId,
                 environment: environment,
-                publishedAt: new Date()
+                publishedAt: new Date(),                
               }
             });
           }
         } catch (error) {
           console.error('Error processing transaction:', error);
-          // Continue with next transaction even if one fails
           continue;
         }
       }
