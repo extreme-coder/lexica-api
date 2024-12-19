@@ -29,7 +29,7 @@ async function generateAudio(text, index) {
   try {
     // Configure Polly parameters
     const params = {
-      Engine: 'neural',
+      Engine: 'generative',
       LanguageCode: 'en-US',
       OutputFormat: 'mp3',
       Text: text,
