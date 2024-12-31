@@ -184,6 +184,44 @@ module.exports = createCoreController('api::subscription.subscription', ({ strap
       console.error(error);
       return ctx.badRequest('Failed to upload profile picture');
     }
+  },
+
+  async delete_account(ctx) {
+    const { user } = ctx.state;
+
+    try {
+      // Find all user subscriptions first
+      const userSubscriptions = await strapi.db.query('api::user-subscription.user-subscription').findMany({
+        where: { user: user.id }
+      });
+
+      // Delete each subscription
+      for (const subscription of userSubscriptions) {
+        await strapi.entityService.delete('api::user-subscription.user-subscription', subscription.id);
+      }
+
+      // Find all credit history items
+      const creditHistoryItems = await strapi.db.query('api::credit-history-item.credit-history-item').findMany({
+        where: { user: user.id }
+      });
+
+      // Delete each credit history item
+      for (const item of creditHistoryItems) {
+        await strapi.entityService.delete('api::credit-history-item.credit-history-item', item.id);
+      }
+
+      // Finally delete the user
+      await strapi.entityService.delete('plugin::users-permissions.user', user.id);
+
+      return {
+        data: {
+          message: 'Account successfully deleted'
+        }
+      };
+    } catch (error) {
+      console.error('Error deleting account:', error);
+      return ctx.badRequest('Failed to delete account');
+    }
   }
 }));
 

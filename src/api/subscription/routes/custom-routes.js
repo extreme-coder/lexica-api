@@ -9,6 +9,11 @@ module.exports = {
       method: 'POST',
       path: '/subscriptions/profile-picture',
       handler: 'subscription.update_profile_picture',
+    },
+    {
+      method: 'DELETE',
+      path: '/subscriptions/delete-account',
+      handler: 'subscription.delete_account',
     }
   ]
 }; 
