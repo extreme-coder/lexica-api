@@ -14,6 +14,11 @@ module.exports = {
       method: 'DELETE',
       path: '/subscriptions/delete-account',
       handler: 'subscription.delete_account',
+    },
+    {
+      method: 'POST',
+      path: '/subscriptions/reinstate-account',
+      handler: 'subscription.reinstate_account',
     }
   ]
 }; 

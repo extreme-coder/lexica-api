@@ -56,6 +56,10 @@
       "default": false,
       "configurable": false
     },
+    "credits": {
+      "type": "integer",
+      "configurable": false
+    },
     "role": {
       "type": "relation",
       "relation": "manyToOne",
@@ -76,10 +80,6 @@
         "audios"
       ]
     },
-    "credits": {
-      "type": "integer",
-      "configurable": false
-    },
     "subscription_plan": {
       "type": "enumeration",
       "enum": [
@@ -88,6 +88,9 @@
         "YEARLY"
       ],
       "default": "NONE"
+    },
+    "deleted": {
+      "type": "boolean"
     }
   }
 }

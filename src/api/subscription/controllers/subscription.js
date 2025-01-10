@@ -190,28 +190,21 @@ module.exports = createCoreController('api::subscription.subscription', ({ strap
     const { user } = ctx.state;
 
     try {
-      // Find all user subscriptions first
-      const userSubscriptions = await strapi.db.query('api::user-subscription.user-subscription').findMany({
+      // Delete all user-lessons for this user
+      const userLessons = await strapi.db.query('api::user-lesson.user-lesson').findMany({
         where: { user: user.id }
       });
 
-      // Delete each subscription
-      for (const subscription of userSubscriptions) {
-        await strapi.entityService.delete('api::user-subscription.user-subscription', subscription.id);
+      for (const lesson of userLessons) {
+        await strapi.entityService.delete('api::user-lesson.user-lesson', lesson.id);
       }
 
-      // Find all credit history items
-      const creditHistoryItems = await strapi.db.query('api::credit-history-item.credit-history-item').findMany({
-        where: { user: user.id }
+      // Update user to blocked status
+      await strapi.entityService.update('plugin::users-permissions.user', user.id, {
+        data: {
+          deleted: true
+        }
       });
-
-      // Delete each credit history item
-      for (const item of creditHistoryItems) {
-        await strapi.entityService.delete('api::credit-history-item.credit-history-item', item.id);
-      }
-
-      // Finally delete the user
-      await strapi.entityService.delete('plugin::users-permissions.user', user.id);
 
       return {
         data: {
@@ -219,8 +212,77 @@ module.exports = createCoreController('api::subscription.subscription', ({ strap
         }
       };
     } catch (error) {
-      console.error('Error deleting account:', error);
+      console.error('Error deactivating account:', error);
       return ctx.badRequest('Failed to delete account');
+    }
+  },
+
+  async reinstate_account(ctx) {
+    const { user } = ctx.state;
+    const { email, username } = ctx.request.body;
+
+    if (!email || !username) {
+      return ctx.badRequest('Email and username are required');
+    }
+
+    try {
+      // Check if user exists and is deleted
+      const deletedUser = await strapi.db.query('plugin::users-permissions.user').findOne({
+        where: { id: user.id, deleted: true }
+      });
+
+      if (!deletedUser) {
+        return ctx.badRequest('User not found or not deleted');
+      }
+
+      // Check if new email is already in use by another active user
+      const existingUserWithEmail = await strapi.db.query('plugin::users-permissions.user').findOne({
+        where: { 
+          email: email, 
+          id: { $ne: user.id },
+          deleted: false
+        }
+      });
+
+      if (existingUserWithEmail) {
+        return ctx.badRequest('Email is already in use');
+      }
+
+      // Check if new username is already in use by another active user
+      const existingUserWithUsername = await strapi.db.query('plugin::users-permissions.user').findOne({
+        where: { 
+          username: username, 
+          id: { $ne: user.id },
+          deleted: false
+        }
+      });
+
+      if (existingUserWithUsername) {
+        return ctx.badRequest('Username is already in use');
+      }
+
+      // Reinstate the account
+      const updatedUser = await strapi.entityService.update('plugin::users-permissions.user', user.id, {
+        data: {
+          deleted: false,
+          email: email,
+          username: username
+        }
+      });
+
+      return {
+        data: {
+          message: 'Account successfully reinstated',
+          user: {
+            id: updatedUser.id,
+            email: updatedUser.email,
+            username: updatedUser.username
+          }
+        }
+      };
+    } catch (error) {
+      console.error('Error reinstating account:', error);
+      return ctx.badRequest('Failed to reinstate account');
     }
   }
 }));
